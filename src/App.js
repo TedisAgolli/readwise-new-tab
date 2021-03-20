@@ -1,7 +1,14 @@
 import "./App.css";
 import { useState } from "react";
+import ReadwiseHighlight from "./ReadwiseHighlight";
 
 const HIGHLIGHTS_ROUTE = "https://readwise.io/api/v2/highlights";
+const READWISE_HIGHLIGHT = {
+  quote:
+    "As a final word of discouragement: a great culture does not get you a great company. If your product isn’t superior or the market doesn’t want it, your company will fail no matter how good its culture is.",
+  cover:
+    "https://images-na.ssl-images-amazon.com/images/I/41qfMTnnWXL._SL200_.jpg",
+};
 function App() {
   const [quote, setQuote] = useState("");
   const [token, setToken] = useState("");
@@ -10,7 +17,11 @@ function App() {
     const data = await fetch(HIGHLIGHTS_ROUTE, {
       method: "GET",
       mode: "cors",
-      headers: { Authorization: `TOKEN ${token}` },
+      headers: {
+        Authorization: `TOKEN ${token}`,
+        "Access-Control-Allow-Credentials": true,
+        contentType: "application/json",
+      },
     })
       .then((res) => res.json())
       .then((res) => res.results[0].text)
@@ -19,8 +30,8 @@ function App() {
     console.log(data);
   }
   return (
-    <div className="App m-2">
-      <form className="center max-w-2xl" onSubmit={getHighlights}>
+    <div className="bg-indigo-600 w-screen h-screen overflow-hidden">
+      <form className="max-w-2xl m-2" onSubmit={getHighlights}>
         <div>
           <label
             htmlFor="token"
@@ -41,6 +52,13 @@ function App() {
         </div>
         <button className="bg-blue-100 rounded p-2 m-1">Get highlights</button>
       </form>
+
+      <div className="flex h-screen">
+        <ReadwiseHighlight
+          quote={READWISE_HIGHLIGHT.quote}
+          cover={READWISE_HIGHLIGHT.cover}
+        />
+      </div>
       <p>{quote}</p>
     </div>
   );
