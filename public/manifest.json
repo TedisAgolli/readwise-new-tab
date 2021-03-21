@@ -1,25 +1,21 @@
 {
-  "short_name": "React App",
-  "name": "Create React App Sample",
-  "icons": [
-    {
-      "src": "favicon.ico",
-      "sizes": "64x64 32x32 24x24 16x16",
-      "type": "image/x-icon"
+    "manifest_version": 2,
+    "name": "Readwise New Tab",
+    "description": "Readwise quote in your new tab",
+    "version": "1.3",
+    "chrome_url_overrides": {
+        "newtab": "index.html"
     },
-    {
-      "src": "logo192.png",
-      "type": "image/png",
-      "sizes": "192x192"
+    "browser_specific_settings": {
+        "gecko": {
+            "id": "tedisagolli@gmail.com",
+            "strict_min_version": "42.0"
+        }
     },
-    {
-      "src": "logo512.png",
-      "type": "image/png",
-      "sizes": "512x512"
-    }
-  ],
-  "start_url": ".",
-  "display": "standalone",
-  "theme_color": "#000000",
-  "background_color": "#ffffff"
+    "permissions": [
+        "storage",
+        "alarms",
+        "<all_urls>"
+    ],
+    "content_security_policy": "script-src 'self' 'sha256-5O/OaC5v/2dRSWVTzGo3ksQzjIYomD8ODIsqPr140ao='"
 }
