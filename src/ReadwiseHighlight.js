@@ -1,6 +1,7 @@
 import React from "react";
 
-function ReadwiseHighlight({ quote, cover }) {
+function ReadwiseHighlight({ quoteAndCover }) {
+  const { quote, cover } = quoteAndCover;
   return (
     <div className="flex m-auto max-w-2xl bg-opacity-30 rounded-lg shadow-xl border-black bg-gradient-to-r from-red-400 to-pink-600">
       <img src={cover} />

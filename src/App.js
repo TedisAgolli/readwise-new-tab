@@ -1,12 +1,12 @@
-/* global chrome */
 import "./App.css";
 import { useState, useEffect } from "react";
 import ReadwiseHighlight from "./ReadwiseHighlight";
+import browserAPI from "./BrowserApi/CacheAccessor";
 
 const HIGHLIGHTS_ROUTE = "https://readwise.io/api/v2/highlights";
 const BOOKS_ROUTE = "https://readwise.io/api/v2/books/";
 const READWISE_HIGHLIGHT = {
-  quote:
+  bookQuote:
     "As a final word of discouragement: a great culture does not get you a great company. If your product isn’t superior or the market doesn’t want it, your company will fail no matter how good its culture is.",
   cover:
     "https://images-na.ssl-images-amazon.com/images/I/41qfMTnnWXL._SL200_.jpg",
@@ -30,18 +30,26 @@ const checkMark = (
 );
 
 function App() {
-  const [quote, setQuote] = useState("");
+  const [quoteAndCover, setQuoteAndCover] = useState({ quote: "", cover: "" });
+
   const [token, setToken] = useState(
     "uuRHgSKj1lB6sBEy4HHVCWSZNudzDf5iSTWo5uFmadjKWJODTD"
   );
   const [tokenIsStored, setTokenIsStored] = useState(false);
-  useEffect(async () => {
-    await chrome.storage.sync.get("readwiseToken", ({ readwiseToken }) => {
-      console.log(readwiseToken);
-      setTokenIsStored(readwiseToken !== undefined);
-      setToken(readwiseToken);
-    });
+  useEffect(() => {
+    async function getToken() {
+      await browserAPI.get("readwiseToken", (readwiseToken) => {
+        console.log(`getting readwise token ${readwiseToken}`);
+        setTokenIsStored(readwiseToken !== undefined);
+        if (readwiseToken) {
+          setToken(readwiseToken);
+        }
+      });
+    }
+    getToken();
+    getHighlights();
   }, []);
+
   async function getBooks() {
     await fetch(BOOKS_ROUTE, {
       method: "Get",
@@ -51,32 +59,49 @@ function App() {
       },
     })
       .then((res) => res.json())
-      .then((res) => console.log(res.results));
+      .then((res) => {
+        res = res.results.map((x) => {
+          return { id: x.id, cover_image_url: x.cover_image_url };
+        });
+        browserAPI.store("books", res);
+      });
   }
   async function storeToken(e) {
     e.preventDefault();
-    chrome.storage.sync.set({ readwiseToken: token }, (e) => {
-      console.log("Stored readwise token");
-      chrome.storage.sync.get("readwiseToken", (res) => console.log(res));
-    });
+    console.log(`Trying to store ${token}`);
+    browserAPI.store("readwiseToken", token);
     return;
   }
 
-  async function getHighlights(e) {
-    const data = await fetch(HIGHLIGHTS_ROUTE, {
-      method: "GET",
-      mode: "cors",
-      headers: {
-        Authorization: `TOKEN ${token}`,
-        "Access-Control-Allow-Credentials": true,
-        contentType: "application/json",
-      },
-    })
+  async function getRandomBook() {
+    const books = await browserAPI.get("books", () => {});
+    const randomBook = books[Math.floor(Math.random() * books.length)];
+    return randomBook;
+  }
+  async function getHighlights() {
+    const randomBook = await getRandomBook();
+    await fetch(
+      `${HIGHLIGHTS_ROUTE}?${new URLSearchParams({ book_id: randomBook.id })}`,
+      {
+        method: "GET",
+        mode: "cors",
+        headers: {
+          Authorization: `TOKEN ${token}`,
+          contentType: "application/json",
+        },
+      }
+    )
       .then((res) => res.json())
-      .then((res) => res.results[0].text)
+      .then((res) => {
+        const randomQuote =
+          res.results[Math.floor(Math.random() * res.results.length)].text;
+        console.log(randomQuote);
+        setQuoteAndCover({
+          quote: randomQuote,
+          cover: randomBook.cover_image_url,
+        });
+      })
       .catch((e) => console.log(e));
-    setQuote(data);
-    console.log(data);
   }
   return (
     <div className="bg-indigo-600 w-screen h-screen overflow-hidden">
@@ -105,7 +130,7 @@ function App() {
           <button className="bg-blue-100 rounded p-2 m-1">Store token</button>
         </form>
       )}
-      <p>{quote}</p>
+      <p>{quoteAndCover.quote}</p>
       <button
         className="bg-red-400 rounded p-2 text-white font-semibold m-2"
         onClick={getBooks}
@@ -113,10 +138,7 @@ function App() {
         Get book list
       </button>
       <div className="flex h-screen">
-        <ReadwiseHighlight
-          quote={READWISE_HIGHLIGHT.quote}
-          cover={READWISE_HIGHLIGHT.cover}
-        />
+        <ReadwiseHighlight quoteAndCover={quoteAndCover} />
       </div>
     </div>
   );

@@ -17,5 +17,5 @@
         "alarms",
         "<all_urls>"
     ],
-    "content_security_policy": "script-src 'self' 'sha256-5O/OaC5v/2dRSWVTzGo3ksQzjIYomD8ODIsqPr140ao='"
+    "content_security_policy": "script-src 'self' 'sha256-igkv/VT7rpraaUvt5oVWFnJK3KeJzcJ1VgVJHBTP+rc='"
 }
