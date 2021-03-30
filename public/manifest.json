@@ -20,8 +20,7 @@
     },
     "permissions": [
         "storage",
-        "alarms",
-        "<all_urls>"
+        "alarms"
     ],
     "content_security_policy": "script-src 'self' 'sha256-U3p9bI/9YcclHRxNVKNCAUJm6l1ff53gO3+5gtQUEzA='"
 }

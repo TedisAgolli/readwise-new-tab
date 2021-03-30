@@ -44,7 +44,6 @@ function App() {
   }, []);
 
   async function getBooks() {
-    // TODO: handle caching these boos
     browserAPI.sendMessage({ type: "get_books", token });
   }
   async function storeToken(e) {
