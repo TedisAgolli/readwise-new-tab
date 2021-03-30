@@ -56,7 +56,7 @@ function App() {
 
   return (
     <div className="bg-indigo-600 w-screen h-screen overflow-hidden">
-      {!tokenIsStored ? (
+      {tokenIsStored ? (
         <div className="m-3" title="Your token has been stored">
           {checkMark}
         </div>
