@@ -3,22 +3,13 @@ import { useState, useEffect } from "react";
 import ReadwiseHighlight from "./ReadwiseHighlight";
 import browserAPI from "./BrowserApi/CacheAccessor";
 
-const HIGHLIGHTS_ROUTE = "https://readwise.io/api/v2/highlights";
-const BOOKS_ROUTE = "https://readwise.io/api/v2/books/";
-const READWISE_HIGHLIGHT = {
-  bookQuote:
-    "As a final word of discouragement: a great culture does not get you a great company. If your product isn’t superior or the market doesn’t want it, your company will fail no matter how good its culture is.",
-  cover:
-    "https://images-na.ssl-images-amazon.com/images/I/41qfMTnnWXL._SL200_.jpg",
-};
-
 const checkMark = (
   <svg
     xmlns="http://www.w3.org/2000/svg"
     fill="none"
     viewBox="0 0 24 24"
     stroke="currentColor"
-    className="text-green-600 h-8 w-8"
+    className="text-green-300 h-8 w-8"
   >
     <path
       strokeLinecap="round"
@@ -32,14 +23,11 @@ const checkMark = (
 function App() {
   const [quoteAndCover, setQuoteAndCover] = useState({ quote: "", cover: "" });
 
-  const [token, setToken] = useState(
-    "uuRHgSKj1lB6sBEy4HHVCWSZNudzDf5iSTWo5uFmadjKWJODTD"
-  );
+  const [token, setToken] = useState("");
   const [tokenIsStored, setTokenIsStored] = useState(false);
   useEffect(() => {
     async function getToken() {
       await browserAPI.get("readwiseToken", (readwiseToken) => {
-        console.log(`getting readwise token ${readwiseToken}`);
         setTokenIsStored(readwiseToken !== undefined);
         if (readwiseToken) {
           setToken(readwiseToken);
@@ -47,68 +35,33 @@ function App() {
       });
     }
     getToken();
-    getHighlights();
+    browserAPI.sendMessage(
+      { type: "get_highlight", token },
+      (quoteAndCover) => {
+        setQuoteAndCover(quoteAndCover);
+      }
+    );
   }, []);
 
   async function getBooks() {
-    await fetch(BOOKS_ROUTE, {
-      method: "Get",
-      mode: "cors",
-      headers: {
-        Authorization: `TOKEN ${token}`,
-      },
-    })
-      .then((res) => res.json())
-      .then((res) => {
-        res = res.results.map((x) => {
-          return { id: x.id, cover_image_url: x.cover_image_url };
-        });
-        browserAPI.store("books", res);
-      });
+    // TODO: handle caching these boos
+    browserAPI.sendMessage({ type: "get_books", token });
   }
   async function storeToken(e) {
     e.preventDefault();
     console.log(`Trying to store ${token}`);
-    browserAPI.store("readwiseToken", token);
+    browserAPI.store("readwiseToken", token, () => setTokenIsStored(true));
     return;
   }
 
-  async function getRandomBook() {
-    const books = await browserAPI.get("books", () => {});
-    const randomBook = books[Math.floor(Math.random() * books.length)];
-    return randomBook;
-  }
-  async function getHighlights() {
-    const randomBook = await getRandomBook();
-    await fetch(
-      `${HIGHLIGHTS_ROUTE}?${new URLSearchParams({ book_id: randomBook.id })}`,
-      {
-        method: "GET",
-        mode: "cors",
-        headers: {
-          Authorization: `TOKEN ${token}`,
-          contentType: "application/json",
-        },
-      }
-    )
-      .then((res) => res.json())
-      .then((res) => {
-        const randomQuote =
-          res.results[Math.floor(Math.random() * res.results.length)].text;
-        console.log(randomQuote);
-        setQuoteAndCover({
-          quote: randomQuote,
-          cover: randomBook.cover_image_url,
-        });
-      })
-      .catch((e) => console.log(e));
-  }
   return (
     <div className="bg-indigo-600 w-screen h-screen overflow-hidden">
-      {tokenIsStored ? (
-        <div>{checkMark}</div>
+      {!tokenIsStored ? (
+        <div className="m-3" title="Your token has been stored">
+          {checkMark}
+        </div>
       ) : (
-        <form className="max-w-2xl m-2" onSubmit={storeToken}>
+        <form className="max-w-lg m-2 outline-white p-2" onSubmit={storeToken}>
           <div>
             <label
               htmlFor="token"
@@ -125,17 +78,30 @@ function App() {
                 onChange={(e) => setToken(e.target.value)}
                 value={token}
               />
+              <div>
+                <span className="text-gray-300">
+                  Your Readwise Auth Token.{" "}
+                  <a
+                    className="text-red-400"
+                    href="https://readwise.io/access_token"
+                    target="_blank"
+                  >
+                    Get it here
+                  </a>
+                </span>
+              </div>
             </div>
           </div>
-          <button className="bg-blue-100 rounded p-2 m-1">Store token</button>
+          <button className="bg-red-400 text-white font-semibold rounded p-2 mt-5">
+            Store token
+          </button>
         </form>
       )}
-      <p>{quoteAndCover.quote}</p>
       <button
-        className="bg-red-400 rounded p-2 text-white font-semibold m-2"
+        className="bg-red-400 rounded p-2 text-white font-semibold ml-2 mt-5"
         onClick={getBooks}
       >
-        Get book list
+        Refresh book list
       </button>
       <div className="flex h-screen">
         <ReadwiseHighlight quoteAndCover={quoteAndCover} />

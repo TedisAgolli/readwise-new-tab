@@ -12,13 +12,18 @@ async function get(id, callback) {
   });
 }
 
-async function store(id, item) {
+async function store(id, item, callback) {
   chrome.storage.sync.set({ [id]: item }, (e) => {
     console.log(`Stored ${id} with value ${JSON.stringify(item)}`);
     chrome.storage.sync.get(id, (res) => {
+      callback(res);
       console.log(`Getting after store ${id} ${JSON.stringify(res)} ${e}`);
     });
   });
 }
 
-export { get, store };
+async function sendMessage(request, handler) {
+  chrome.runtime.sendMessage(request, handler);
+}
+
+export { get, store, sendMessage };

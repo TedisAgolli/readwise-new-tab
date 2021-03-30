@@ -76,4 +76,14 @@ async function get(id, callback) {
 async function store(id, item) {
   console.log(`Stored item with id ${id} and value ${JSON.stringify(item)}`);
 }
-export { get, store };
+async function sendMessage(request, handler) {
+  handler({
+    quote:
+      "As a final word of discouragement: a great culture does not get you a great company. If your product isn’t superior or the market doesn’t want it, your company will fail no matter how good its culture is.",
+    cover:
+      "https://images-na.ssl-images-amazon.com/images/I/41qfMTnnWXL._SL200_.jpg",
+  });
+  console.log("Sending message to background script");
+}
+
+export { get, store, sendMessage };
