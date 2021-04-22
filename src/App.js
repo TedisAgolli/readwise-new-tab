@@ -22,10 +22,19 @@ const checkMark = (
 
 function App() {
   const [quoteAndCover, setQuoteAndCover] = useState({ quote: "", cover: "" });
-
   const [token, setToken] = useState("");
   const [tokenIsStored, setTokenIsStored] = useState(false);
+
   useEffect(() => {
+    browserAPI.sendMessage({ type: "cached_quote" }, (quoteAndCover) => {
+      console.log(
+        "🚀 ~ file: App.js ~ line 30 ~ browserAPI.sendMessage ~ quoteAndCover",
+        quoteAndCover
+      );
+      if (quoteAndCover) {
+        setQuoteAndCover(quoteAndCover);
+      }
+    });
     async function getToken() {
       await browserAPI.get("readwiseToken", (readwiseToken) => {
         setTokenIsStored(readwiseToken !== undefined);
@@ -35,6 +44,7 @@ function App() {
       });
     }
     getToken();
+    // TODO: Only update every x min
     browserAPI.sendMessage(
       { type: "get_highlight", token },
       (quoteAndCover) => {

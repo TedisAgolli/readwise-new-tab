@@ -1,20 +1,25 @@
 const BOOKS_ROUTE = "https://readwise.io/api/v2/books/";
 const HIGHLIGHTS_ROUTE = "https://readwise.io/api/v2/highlights";
+let cachedQuote;
 
 chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
-  console.log(request, sender, sendResponse);
-  chrome.storage.sync.get("readwiseToken", ({ readwiseToken }) => {
-    if (request.type === "get_books") {
-      getBooks(readwiseToken);
-    } else if (request.type === "get_highlight") {
+  if (request.type === "cached_quote") {
+    console.log(
+      "🚀 ~ file: background.js ~ line 10 ~ cachedQuote",
+      cachedQuote
+    );
+    sendResponse(cachedQuote);
+  }
+  if (request.type === "get_highlight") {
+    chrome.storage.sync.get("readwiseToken", ({ readwiseToken }) => {
       getHighlights(readwiseToken, sendResponse);
-    }
-  });
+    });
+  }
   return true;
 });
 
 async function getBooks(token) {
-  fetch(BOOKS_ROUTE, {
+  return fetch(BOOKS_ROUTE, {
     method: "Get",
     mode: "cors",
     headers: {
@@ -23,34 +28,27 @@ async function getBooks(token) {
   })
     .then((res) => res.json())
     .then((res) => {
-      bookMap = res.results.map((x) => {
+      return res.results.map((x) => {
         return { id: x.id, cover_image_url: x.cover_image_url };
       });
-
-      chrome.storage.sync.set({ books: bookMap }, (e) => {
-        console.log(`Stored books with value ${JSON.stringify(bookMap)}`);
-        chrome.storage.sync.get("books", (res) => {
-          console.log(`Getting after store books ${JSON.stringify(res)} ${e}`);
-        });
-      });
     });
+
+  //   chrome.storage.sync.set({ covers: bookMap.filter(x=>x.cover_image_url) }, (e) => {
+  //     console.log(`Stored books with value ${JSON.stringify(bookMap)}`);
+  //     chrome.storage.sync.get("books", (res) => {
+  //       console.log(`Getting after store books ${JSON.stringify(res)} ${e}`);
+  //     });
+  //   });
 }
 
-async function getRandomBook() {
-  return new Promise((resolve, reject) =>
-    chrome.storage.sync.get("books", (res) => {
-      console.log(`Getting after store books ${JSON.stringify(res)}`);
-      resolve(res);
-    })
-  ).then(({ books }) => {
+async function getRandomBook(token) {
+  return getBooks(token).then((books) => {
     const randomBook = books[Math.floor(Math.random() * books.length)];
-    console.log(randomBook, books);
     return randomBook;
   });
 }
 async function getHighlights(token, setHighlight) {
-  const randomBook = await getRandomBook();
-  console.log(randomBook);
+  const randomBook = await getRandomBook(token);
   return fetch(
     `${HIGHLIGHTS_ROUTE}?${new URLSearchParams({ book_id: randomBook.id })}`,
     {
@@ -64,15 +62,28 @@ async function getHighlights(token, setHighlight) {
   )
     .then((res) => res.json())
     .then((res) => {
-      console.log(res);
       if (res.count > 0) {
         const randomQuote =
           res.results[Math.floor(Math.random() * res.results.length)].text;
-        console.log(randomQuote, setHighlight);
-        setHighlight({
+
+        const selectedQuote = {
           quote: randomQuote,
           cover: randomBook.cover_image_url,
+        };
+        chrome.storage.sync.set({ selectedQuote }, (e) => {
+          console.log(
+            "🚀 ~ file: background.js ~ line 70 ~ chrome.storage.sync.set ~ selectedQuote",
+            selectedQuote,
+            e
+          );
         });
+
+        cachedQuote = selectedQuote;
+        console.log(
+          "🚀 ~ file: background.js ~ line 85 ~ .then ~ cachedQuote",
+          cachedQuote
+        );
+        setHighlight(selectedQuote);
       }
     })
     .catch((e) => console.log(e));
