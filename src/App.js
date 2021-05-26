@@ -106,12 +106,6 @@ function App() {
           </button>
         </form>
       )}
-      <button
-        className="bg-red-400 rounded p-2 text-white font-semibold ml-2 mt-5"
-        onClick={getBooks}
-      >
-        Refresh book list
-      </button>
       <div className="flex h-screen">
         <ReadwiseHighlight quoteAndCover={quoteAndCover} />
       </div>

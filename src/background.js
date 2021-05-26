@@ -32,13 +32,6 @@ async function getBooks(token) {
         return { id: x.id, cover_image_url: x.cover_image_url };
       });
     });
-
-  //   chrome.storage.sync.set({ covers: bookMap.filter(x=>x.cover_image_url) }, (e) => {
-  //     console.log(`Stored books with value ${JSON.stringify(bookMap)}`);
-  //     chrome.storage.sync.get("books", (res) => {
-  //       console.log(`Getting after store books ${JSON.stringify(res)} ${e}`);
-  //     });
-  //   });
 }
 
 async function getRandomBook(token) {
