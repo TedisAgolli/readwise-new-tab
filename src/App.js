@@ -3,20 +3,20 @@ import { useState, useEffect } from "react";
 import ReadwiseHighlight from "./ReadwiseHighlight";
 import browserAPI from "./BrowserApi/CacheAccessor";
 
-const checkMark = (
+const editIcon = (
   <svg
     xmlns="http://www.w3.org/2000/svg"
+    width="24"
+    height="24"
     fill="none"
-    viewBox="0 0 24 24"
     stroke="currentColor"
+    stroke-width="2"
+    stroke-linecap="round"
+    stroke-linejoin="round"
     className="text-green-300 h-8 w-8"
   >
-    <path
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      strokeWidth={2}
-      d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"
-    />
+    <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7" />
+    <path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z" />
   </svg>
 );
 
@@ -24,6 +24,7 @@ function App() {
   const [quoteAndCover, setQuoteAndCover] = useState({ quote: "", cover: "" });
   const [token, setToken] = useState("");
   const [tokenIsStored, setTokenIsStored] = useState(false);
+  const [editingToken, setTokenIsEditing] = useState(false);
 
   useEffect(() => {
     browserAPI.sendMessage({ type: "cached_quote" }, (quoteAndCover) => {
@@ -53,21 +54,28 @@ function App() {
     );
   }, []);
 
-  async function getBooks() {
-    browserAPI.sendMessage({ type: "get_books", token });
-  }
   async function storeToken(e) {
     e.preventDefault();
     console.log(`Trying to store ${token}`);
-    browserAPI.store("readwiseToken", token, () => setTokenIsStored(true));
+    browserAPI.store("readwiseToken", token, () => {
+      setTokenIsStored(true);
+      setTokenIsEditing(false);
+    });
     return;
   }
 
   return (
     <div className="bg-indigo-600 w-screen h-screen overflow-hidden">
-      {tokenIsStored ? (
-        <div className="m-3" title="Your token has been stored">
-          {checkMark}
+      {tokenIsStored && !editingToken ? (
+        <div className="m-3 flex space-x-2">
+          <span className="text-white font-semibold"> Token stored </span>
+          <button
+            onClick={() => {
+              setTokenIsEditing(!editingToken);
+            }}
+          >
+            <span title="Change your token"> {editIcon}</span>
+          </button>
         </div>
       ) : (
         <form className="max-w-lg m-2 outline-white p-2" onSubmit={storeToken}>
@@ -101,7 +109,10 @@ function App() {
               </div>
             </div>
           </div>
-          <button className="bg-red-400 text-white font-semibold rounded p-2 mt-5">
+          <button
+            type="submit"
+            className="bg-red-400 text-white font-semibold rounded p-2 mt-5"
+          >
             Store token
           </button>
         </form>

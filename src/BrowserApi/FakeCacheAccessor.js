@@ -73,8 +73,9 @@ async function get(id, callback) {
   return "TOKEN";
 }
 
-async function store(id, item) {
+async function store(id, item, callback) {
   console.log(`Stored item with id ${id} and value ${JSON.stringify(item)}`);
+  callback();
 }
 async function sendMessage(request, handler) {
   handler({
