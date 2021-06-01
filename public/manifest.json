@@ -2,7 +2,19 @@
     "manifest_version": 2,
     "name": "Readwise New Tab",
     "description": "Readwise quote in your new tab",
-    "version": "0.9",
+    "version": "0.91",
+    "icons": {
+        "16": "logos/icon_16.png",
+        "48": "logos/icon_48.png",
+        "128": "logos/icon_128.png",
+        "256": "logos/icon_256.png"
+    },
+    "browser_action": {
+        "default_icon": {
+            "16": "logos/icon_16.png",
+            "48": "logos/icon_48.png"
+        }
+    },
     "background": {
         "scripts": [
             "background.js"

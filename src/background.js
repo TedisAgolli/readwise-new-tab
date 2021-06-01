@@ -2,6 +2,10 @@ const BOOKS_ROUTE = "https://readwise.io/api/v2/books/";
 const HIGHLIGHTS_ROUTE = "https://readwise.io/api/v2/highlights";
 let cachedQuote;
 
+chrome.browserAction.onClicked.addListener(function (tab) {
+  chrome.tabs.update({ url: "https://readwise.io/access_token" });
+});
+
 chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
   if (request.type === "cached_quote") {
     console.log(

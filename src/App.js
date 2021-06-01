@@ -104,7 +104,8 @@ function App() {
                     target="_blank"
                   >
                     Get it here
-                  </a>
+                  </a>{" "}
+                  or click the extension icon
                 </span>
               </div>
             </div>
