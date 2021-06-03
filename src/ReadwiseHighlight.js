@@ -1,4 +1,6 @@
 import React from "react";
+import MarkdownIt from "markdown-it";
+const md = new MarkdownIt();
 
 function ReadwiseHighlight({ quoteAndCover }) {
   const { quote, cover, id } = quoteAndCover;
@@ -29,7 +31,12 @@ function ReadwiseHighlight({ quoteAndCover }) {
                 <path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6M15 3h6v6M10 14L21 3" />
               </svg>
             </a>
-            <p className="mx-2 text-white text-xl font-semibold">{quote}</p>
+            <div
+              className="mx-2 text-white text-xl font-semibold"
+              dangerouslySetInnerHTML={{
+                __html: md.render(quote),
+              }}
+            ></div>
           </div>
         </>
       ) : (

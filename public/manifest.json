@@ -34,5 +34,5 @@
         "storage",
         "https://readwise.io/api/*"
     ],
-    "content_security_policy": "script-src 'self' 'sha256-U3p9bI/9YcclHRxNVKNCAUJm6l1ff53gO3+5gtQUEzA='"
+    "content_security_policy": "script-src 'self' 'sha256-MKrB8bV17X/BhGBd65vIlTHVhQZ1AFMD4lrWW/S8aXc='"
 }

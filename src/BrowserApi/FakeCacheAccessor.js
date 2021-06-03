@@ -80,7 +80,7 @@ async function store(id, item, callback) {
 async function sendMessage(request, handler) {
   handler({
     quote:
-      "As a final word of discouragement: a great culture does not get you a great company. If your product isn’t superior or the market doesn’t want it, your company will fail no matter how good its culture is.",
+      "> Often highlight text will contain markdown rather than just plaintext! \n![image](https://user-images.githubusercontent.com/10348514/120664815-3da09680-c459-11eb-85ac-c5f507c9bce8.png) \n*Would* **be** [really](https://google.com) awesome if the extension rendered markdown using something like https://github.com/evilstreak/markdown-js",
     cover:
       "https://images-na.ssl-images-amazon.com/images/I/41qfMTnnWXL._SL200_.jpg",
     id: "181524649",
