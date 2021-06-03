@@ -21,7 +21,11 @@ const editIcon = (
 );
 
 function App() {
-  const [quoteAndCover, setQuoteAndCover] = useState({ quote: "", cover: "" });
+  const [quoteAndCover, setQuoteAndCover] = useState({
+    quote: "",
+    cover: "",
+    id: "",
+  });
   const [token, setToken] = useState("");
   const [tokenIsStored, setTokenIsStored] = useState(false);
   const [editingToken, setTokenIsEditing] = useState(false);

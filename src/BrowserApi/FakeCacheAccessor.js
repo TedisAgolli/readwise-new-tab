@@ -83,6 +83,7 @@ async function sendMessage(request, handler) {
       "As a final word of discouragement: a great culture does not get you a great company. If your product isn’t superior or the market doesn’t want it, your company will fail no matter how good its culture is.",
     cover:
       "https://images-na.ssl-images-amazon.com/images/I/41qfMTnnWXL._SL200_.jpg",
+    id: "181524649",
   });
   console.log("Sending message to background script");
 }

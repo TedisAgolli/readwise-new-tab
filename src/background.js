@@ -59,12 +59,40 @@ async function getHighlights(token, setHighlight) {
   )
     .then((res) => res.json())
     .then((res) => {
+      // {
+      //     "count": 1163,
+      //     "next": "https://readwise.io/api/v2/highlights?page=2",
+      //     "previous": null,
+      //     "results": [
+      //       {
+      //         "id": 59758950,
+      //         "text": "The fundamental belief of metaphysicians is THE BELIEF IN ANTITHESES OF VALUES.",
+      //         "note": "",
+      //         "location": 9,
+      //         "location_type": "order",
+      //         "highlighted_at": null,
+      //         "url": null,
+      //         "color": "",
+      //         "updated": "2020-10-01T12:58:44.716235Z",
+      //         "book_id": 2608248,
+      //         "tags": [
+      //           {
+      //              "id": 123456,
+      //              "name": "philosophy"
+      //           },
+      //           ...
+      //         ]
+      //       },
+      //       ...
+      //     ]
+      //   }
       if (res.count > 0) {
-        const randomQuote =
-          res.results[Math.floor(Math.random() * res.results.length)].text;
+        const highlight =
+          res.results[Math.floor(Math.random() * res.results.length)];
 
         const selectedQuote = {
-          quote: randomQuote,
+          quote: highlight.text,
+          id: highlight.id,
           cover: randomBook.cover_image_url,
         };
         chrome.storage.sync.set({ selectedQuote }, (e) => {
