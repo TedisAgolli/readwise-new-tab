@@ -32,10 +32,6 @@ function App() {
 
   useEffect(() => {
     browserAPI.sendMessage({ type: "cached_quote" }, (quoteAndCover) => {
-      console.log(
-        "🚀 ~ file: App.js ~ line 30 ~ browserAPI.sendMessage ~ quoteAndCover",
-        quoteAndCover
-      );
       if (quoteAndCover) {
         setQuoteAndCover(quoteAndCover);
       }
@@ -45,25 +41,26 @@ function App() {
         setTokenIsStored(readwiseToken !== undefined);
         if (readwiseToken) {
           setToken(readwiseToken);
+          browserAPI.sendMessage(
+            { type: "get_highlight", token: readwiseToken },
+            (quoteAndCover) => {
+              if (quoteAndCover) {
+                setQuoteAndCover(quoteAndCover);
+              }
+            }
+          );
         }
       });
     }
     getToken();
-    // TODO: Only update every x min
-    browserAPI.sendMessage(
-      { type: "get_highlight", token },
-      (quoteAndCover) => {
-        setQuoteAndCover(quoteAndCover);
-      }
-    );
   }, []);
 
   async function storeToken(e) {
     e.preventDefault();
-    console.log(`Trying to store ${token}`);
     browserAPI.store("readwiseToken", token, () => {
       setTokenIsStored(true);
       setTokenIsEditing(false);
+      browserAPI.sendMessage({ type: "cache_books", token });
     });
     return;
   }

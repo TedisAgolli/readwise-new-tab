@@ -17,7 +17,6 @@ async function store(id, item, callback) {
     console.log(`Stored ${id} with value ${JSON.stringify(item)}`);
     chrome.storage.sync.get(id, (res) => {
       callback(res);
-      console.log(`Getting after store ${id} ${JSON.stringify(res)} ${e}`);
     });
   });
 }

@@ -19,7 +19,7 @@
         "scripts": [
             "background.js"
         ],
-        "persistent": true
+        "persistent": false
     },
     "chrome_url_overrides": {
         "newtab": "index.html"
