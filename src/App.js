@@ -66,7 +66,7 @@ function App() {
   }
 
   return (
-    <div className="bg-indigo-600 w-screen h-screen overflow-hidden">
+    <div className="bg-indigo-600">
       {tokenIsStored && !editingToken ? (
         <div className="m-3 flex space-x-2">
           <span className="text-white font-semibold"> Token stored </span>
@@ -119,9 +119,7 @@ function App() {
           </button>
         </form>
       )}
-      <div className="flex h-screen">
-        <ReadwiseHighlight quoteAndCover={quoteAndCover} />
-      </div>
+      <ReadwiseHighlight quoteAndCover={quoteAndCover} />
     </div>
   );
 }

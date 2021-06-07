@@ -82,7 +82,7 @@ async function sendMessage(request, handler) {
     quote:
       "> Often highlight text will contain markdown rather than just plaintext! \n![image](https://user-images.githubusercontent.com/10348514/120664815-3da09680-c459-11eb-85ac-c5f507c9bce8.png) \n*Would* **be** [really](https://google.com) awesome if the extension rendered markdown using something like https://github.com/evilstreak/markdown-js",
     cover:
-      "https://images-na.ssl-images-amazon.com/images/I/41qfMTnnWXL._SL200_.jpg",
+      "https://pbs.twimg.com/profile_images/1158747539031543809/u-EDpmt5.jpg",
     id: "181524649",
   });
   console.log("Sending message to background script");
