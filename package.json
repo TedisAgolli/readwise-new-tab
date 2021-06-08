@@ -1,52 +1,45 @@
 {
-    "name": "readwise-new-tab",
-    "version": "0.1.0",
-    "private": true,
-    "dependencies": {
-        "@craco/craco": "^6.1.1",
-        "@tailwindcss/forms": "^0.2.1",
-        "@testing-library/jest-dom": "^5.11.4",
-        "@testing-library/react": "^11.1.0",
-        "@testing-library/user-event": "^12.1.10",
-        "markdown-it": "^12.0.6",
-        "npm-run-all": "^4.1.5",
-        "react": "^17.0.1",
-        "react-dom": "^17.0.1",
-        "react-helmet": "^6.1.0",
-        "react-scripts": "4.0.3",
-        "web-vitals": "^1.0.1",
-        "webpack-cli": "^4.6.0"
-    },
+    "name": "chrome-extension-react-typescript-boilerplate",
+    "version": "1.0.0",
+    "description": "",
     "scripts": {
-        "start": "craco start",
-        "build": "npm-run-all build:*",
-        "build:app": "craco build",
-        "build:bg": "webpack --mode production",
-        "test": "craco test",
-        "eject": "react-scripts eject"
+        "test": "echo \"Error: no test specified\" && exit 1",
+        "build": "cross-env NODE_ENV=production && webpack",
+        "start": "webpack --watch"
     },
-    "eslintConfig": {
-        "extends": [
-            "react-app",
-            "react-app/jest"
-        ]
-    },
-    "browserslist": {
-        "production": [
-            ">0.2%",
-            "not dead",
-            "not op_mini all"
-        ],
-        "development": [
-            "last 1 chrome version",
-            "last 1 firefox version",
-            "last 1 safari version"
-        ]
-    },
+    "keywords": [],
+    "license": "ISC",
     "devDependencies": {
-        "@tailwindcss/postcss7-compat": "^2.0.4",
-        "autoprefixer": "^9.8.6",
-        "postcss": "^7.0.35",
-        "tailwindcss": "npm:@tailwindcss/postcss7-compat@^2.0.4"
+        "@babel/core": "^7.12.3",
+        "@babel/preset-env": "^7.12.1",
+        "@babel/preset-react": "^7.12.1",
+        "@hot-loader/react-dom": "^17.0.0-rc.2",
+        "@types/chrome": "0.0.125",
+        "@types/markdown-it": "^12.0.1",
+        "@types/react": "^16.9.53",
+        "@types/react-dom": "^16.9.8",
+        "autoprefixer": "^10.2.6",
+        "babel-loader": "^8.1.0",
+        "copy-webpack-plugin": "^6.2.1",
+        "cross-env": "^7.0.3",
+        "css-loader": "^5.0.0",
+        "file-loader": "^6.1.1",
+        "localforage": "^1.9.0",
+        "markdown-it": "^12.0.6",
+        "postcss": "^8.3.0",
+        "style-loader": "^2.0.0",
+        "tailwindcss": "^2.1.4",
+        "ts-loader": "^8.0.5",
+        "typescript": "^4.0.3",
+        "url-loader": "^4.1.1",
+        "webpack": "^5.1.3",
+        "webpack-cli": "^4.0.0",
+        "webpack-dev-server": "^3.11.0"
+    },
+    "dependencies": {
+        "postcss-loader": "^5.3.0",
+        "react": "^16.14.0",
+        "react-dom": "^16.14.0",
+        "react-hot-loader": "^4.13.0"
     }
 }

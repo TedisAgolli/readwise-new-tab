@@ -2,8 +2,10 @@ import React from "react";
 import MarkdownIt from "markdown-it";
 const md = new MarkdownIt();
 
-function ReadwiseHighlight({ quoteAndCover }) {
-  const { quote, cover, id } = quoteAndCover;
+function ReadwiseHighlight(props: {
+  quoteAndCover: { quote: string; cover: string; id: string };
+}) {
+  const { quote, cover, id } = props.quoteAndCover;
   return (
     // Default state if src or quote empty
     <div className="flex flex-col mt-28 mx-auto max-w-2xl">
@@ -16,12 +18,12 @@ function ReadwiseHighlight({ quoteAndCover }) {
               className="-mb-1 max-h-48 max-w-48"
             />
           </div>
-          <div className="flex flex-col items-end bg-opacity-30 rounded-lg shadow-xl border-black bg-gradient-to-r from-red-400 to-pink-500">
+          <div className="flex flex-col bg-opacity-30 rounded-lg shadow-xl border-black bg-gradient-to-r from-red-400 to-pink-500">
             <a
               title="Open in Readwise"
               target="_blank"
               href={`https://readwise.io/open/${id}`}
-              className="m-1"
+              className="m-1 ml-auto"
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"

@@ -1,3 +1,5 @@
+/*global chrome*/
+
 const BOOKS_ROUTE = "https://readwise.io/api/v2/books/";
 const HIGHLIGHTS_ROUTE = "https://readwise.io/api/v2/highlights";
 
@@ -19,7 +21,7 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
   return true;
 });
 
-async function cacheBooks(token) {
+async function cacheBooks(token: string) {
   return fetch(BOOKS_ROUTE, {
     method: "Get",
     mode: "cors",
@@ -30,7 +32,7 @@ async function cacheBooks(token) {
     .then((res) => res.json())
     .then((res) => {
       const bookToCover = Object.fromEntries(
-        res.results.map((x) => {
+        res.results.map((x: { id: string; cover_image_url: string }) => {
           return [x.id, x.cover_image_url];
         })
       );
@@ -38,9 +40,9 @@ async function cacheBooks(token) {
     });
 }
 
-async function getAllHighlights(token, setHighlight) {
+async function getAllHighlights(token: string, setHighlight: Function) {
   const urlSearchParams = new URLSearchParams({
-    page_size: 1,
+    page_size: "1",
   });
   chrome.storage.local.get(
     "cachedTotalHighlightsNumber",
@@ -49,7 +51,7 @@ async function getAllHighlights(token, setHighlight) {
         const highlightNumber = Math.floor(
           Math.random() * cachedTotalHighlightsNumber
         );
-        urlSearchParams.set("page", highlightNumber);
+        urlSearchParams.set("page", highlightNumber.toString());
       }
       fetch(`${HIGHLIGHTS_ROUTE}?${urlSearchParams}`, {
         method: "GET",

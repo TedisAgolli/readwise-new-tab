@@ -1,5 +1,5 @@
 import "./App.css";
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import ReadwiseHighlight from "./ReadwiseHighlight";
 import browserAPI from "./BrowserApi/CacheAccessor";
 
@@ -55,14 +55,13 @@ function App() {
     getToken();
   }, []);
 
-  async function storeToken(e) {
-    e.preventDefault();
+  function storeToken(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
     browserAPI.store("readwiseToken", token, () => {
       setTokenIsStored(true);
       setTokenIsEditing(false);
-      browserAPI.sendMessage({ type: "cache_books", token });
+      browserAPI.sendMessage({ type: "cache_books", token }, () => {});
     });
-    return;
   }
 
   return (
