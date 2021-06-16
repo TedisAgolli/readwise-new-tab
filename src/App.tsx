@@ -31,36 +31,38 @@ function App() {
   const [editingToken, setTokenIsEditing] = useState(false);
 
   useEffect(() => {
-    browserAPI.sendMessage({ type: "cached_quote" }, (quoteAndCover) => {
-      if (quoteAndCover) {
-        setQuoteAndCover(quoteAndCover);
-      }
-    });
     async function getToken() {
-      await browserAPI.get("readwiseToken", (readwiseToken) => {
-        setTokenIsStored(readwiseToken !== undefined);
-        if (readwiseToken) {
-          setToken(readwiseToken);
-          browserAPI.sendMessage(
-            { type: "get_highlight", token: readwiseToken },
-            (quoteAndCover) => {
-              if (quoteAndCover) {
-                setQuoteAndCover(quoteAndCover);
+      browserAPI.sendMessage(
+        { type: "get_readwise_token" },
+        (readwiseToken) => {
+          setTokenIsStored(Boolean(readwiseToken));
+          if (readwiseToken) {
+            setToken(readwiseToken);
+            browserAPI.sendMessage(
+              { type: "get_highlight" },
+              (quoteAndCover) => {
+                if (quoteAndCover) {
+                  setQuoteAndCover(quoteAndCover);
+                }
               }
-            }
-          );
+            );
+          }
         }
-      });
+      );
     }
     getToken();
   }, []);
 
   function storeToken(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    browserAPI.store("readwiseToken", token, () => {
+    browserAPI.sendMessage({ type: "store_readwise_token", token }, () => {
       setTokenIsStored(true);
       setTokenIsEditing(false);
-      browserAPI.sendMessage({ type: "cache_books", token }, () => {});
+      browserAPI.sendMessage({ type: "get_highlight" }, (quoteAndCover) => {
+        if (quoteAndCover) {
+          setQuoteAndCover(quoteAndCover);
+        }
+      });
     });
   }
 
@@ -89,7 +91,7 @@ function App() {
             <div className="mt-1">
               <input
                 type="text"
-                className="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md"
+                className="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md px-1"
                 id="token"
                 name="token"
                 onChange={(e) => setToken(e.target.value)}

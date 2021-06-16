@@ -2,7 +2,7 @@
     "manifest_version": 2,
     "name": "Readwise New Tab",
     "description": "Readwise quote in your new tab",
-    "version": "0.91",
+    "version": "0.92",
     "icons": {
         "16": "logos/icon_16.png",
         "48": "logos/icon_48.png",
@@ -31,6 +31,7 @@
         }
     },
     "permissions": [
+        "alarms",
         "storage",
         "https://readwise.io/api/*"
     ],
