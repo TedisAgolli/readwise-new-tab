@@ -6,17 +6,17 @@ import browserAPI from "./BrowserApi/CacheAccessor";
 const editIcon = (
   <svg
     xmlns="http://www.w3.org/2000/svg"
-    width="24"
-    height="24"
+    className="h-8 w-8 text-green-300"
     fill="none"
+    viewBox="0 0 24 24"
     stroke="currentColor"
-    stroke-width="2"
-    stroke-linecap="round"
-    stroke-linejoin="round"
-    className="text-green-300 h-8 w-8"
   >
-    <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7" />
-    <path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z" />
+    <path
+      stroke-linecap="round"
+      stroke-linejoin="round"
+      stroke-width="2"
+      d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
+    />
   </svg>
 );
 
@@ -69,7 +69,7 @@ function App() {
   return (
     <div className="bg-indigo-600">
       {tokenIsStored && !editingToken ? (
-        <div className="m-3 flex space-x-2">
+        <div className="m-3 flex space-x-2 items-center">
           <span className="text-white font-semibold"> Token stored </span>
           <button
             onClick={() => {
