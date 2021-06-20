@@ -78,7 +78,8 @@ export class ReadwiseApi {
   async fetchData(
     contentType = "highlights",
     lastUpdated?: string,
-    bookId?: Number
+    bookId?: Number,
+    yieldValues?: (data: Highlight[] | Book[]) => void
   ): Promise<Highlight[] | Book[]> {
     let url = `${API_ENDPOINT}/${contentType}?page_size=${API_PAGE_SIZE}`;
     if (lastUpdated) url += `&updated__gt=${lastUpdated}`;
@@ -117,6 +118,9 @@ export class ReadwiseApi {
         data.next = url;
       } else {
         results.push(...data.results);
+        if (yieldValues) {
+          yieldValues(data.results);
+        }
 
         if (data.next) {
           const remainingRecords = data.count - results.length;

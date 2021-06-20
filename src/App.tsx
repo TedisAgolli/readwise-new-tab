@@ -29,27 +29,21 @@ function App() {
   const [token, setToken] = useState("");
   const [tokenIsStored, setTokenIsStored] = useState(false);
   const [editingToken, setTokenIsEditing] = useState(false);
+  async function getToken() {
+    browserAPI.sendMessage({ type: "get_readwise_token" }, (readwiseToken) => {
+      setTokenIsStored(Boolean(readwiseToken));
+      if (readwiseToken) {
+        setToken(readwiseToken);
+        browserAPI.sendMessage({ type: "get_highlight" }, (quoteAndCover) => {
+          if (quoteAndCover) {
+            setQuoteAndCover(quoteAndCover);
+          }
+        });
+      }
+    });
+  }
 
   useEffect(() => {
-    async function getToken() {
-      browserAPI.sendMessage(
-        { type: "get_readwise_token" },
-        (readwiseToken) => {
-          setTokenIsStored(Boolean(readwiseToken));
-          if (readwiseToken) {
-            setToken(readwiseToken);
-            browserAPI.sendMessage(
-              { type: "get_highlight" },
-              (quoteAndCover) => {
-                if (quoteAndCover) {
-                  setQuoteAndCover(quoteAndCover);
-                }
-              }
-            );
-          }
-        }
-      );
-    }
     getToken();
   }, []);
 
