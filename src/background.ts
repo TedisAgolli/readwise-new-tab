@@ -19,44 +19,67 @@ async function getAllReadwiseData(
   const readwiseApi = new ReadwiseApi(token);
   localforage.getItem(
     "loadingData",
-    async (err, value: { isLoadingData: boolean } | null) => {
+    (err, value: { isLoadingData: boolean } | null) => {
       if (!(value && value.isLoadingData)) {
         let isFirst = true;
         localforage.setItem("loadingData", { isLoadingData: true });
-        const books = (await readwiseApi.fetchData("books")) as Book[];
-        readwiseApi
-          .fetchData("highlights", undefined, undefined, (highlights) => {
-            localforage.getItem(
-              BOOKS_AND_HIGHLIGHTS,
-              (err, currentBooksAndHighlights: BooksAndHighlights | null) => {
-                let booksAndHighlights;
-                if (currentBooksAndHighlights) {
-                  booksAndHighlights = {
-                    books: [...currentBooksAndHighlights.books, ...books],
-                    highlights: [
-                      ...currentBooksAndHighlights.highlights,
-                      ...(highlights as Highlight[]),
-                    ],
-                  };
-                } else {
-                  booksAndHighlights = {
-                    books,
-                    highlights: highlights as Highlight[],
-                  };
-                }
+        localforage.getItem(
+          "lastFetch",
+          async (err, lastFetch: string | null) => {
+            localforage.setItem("lastFetch", new Date().toISOString());
+            const books = (await readwiseApi.fetchData(
+              "books",
+              lastFetch ? lastFetch : undefined
+            )) as Book[];
+            readwiseApi
+              .fetchData(
+                "highlights",
+                lastFetch ? lastFetch : undefined,
+                undefined,
+                (highlights) => {
+                  localforage.getItem(
+                    BOOKS_AND_HIGHLIGHTS,
+                    (
+                      err,
+                      currentBooksAndHighlights: BooksAndHighlights | null
+                    ) => {
+                      let booksAndHighlights;
+                      if (currentBooksAndHighlights) {
+                        booksAndHighlights = {
+                          books: [...currentBooksAndHighlights.books, ...books],
+                          highlights: [
+                            ...currentBooksAndHighlights.highlights,
+                            ...(highlights as Highlight[]),
+                          ],
+                        };
+                      } else {
+                        booksAndHighlights = {
+                          books,
+                          highlights: highlights as Highlight[],
+                        };
+                      }
 
-                localforage.setItem(BOOKS_AND_HIGHLIGHTS, booksAndHighlights);
-                if (isFirst) {
-                  isFirst = false;
-                  callback(getRandomHighlight(booksAndHighlights));
+                      localforage.setItem(
+                        BOOKS_AND_HIGHLIGHTS,
+                        booksAndHighlights
+                      );
+                      if (isFirst) {
+                        isFirst = false;
+                        callback(getRandomHighlight(booksAndHighlights));
+                      }
+                    }
+                  );
                 }
-              }
-            );
-          })
-          .then((highlights) => {
-            localforage.setItem("loadingData", { isLoadingData: false });
-            localforage.setItem(BOOKS_AND_HIGHLIGHTS, { books, highlights });
-          });
+              )
+              .then((highlights) => {
+                localforage.setItem("loadingData", { isLoadingData: false });
+                localforage.setItem(BOOKS_AND_HIGHLIGHTS, {
+                  books,
+                  highlights,
+                });
+              });
+          }
+        );
       } else {
         console.info("Data is currently being loaded");
         localforage.setItem("loadingData", { isLoadingData: true });
@@ -89,17 +112,19 @@ chrome.alarms.onAlarm.addListener(function (alarm) {
     localforage.getItem("token", (err, token: string | null) => {
       if (!token) return;
       getAllReadwiseData(token, (data) => {
-        console.info("Updating cache", data);
+        console.info("Updating cache");
       });
     });
   }
 });
 chrome.alarms.get("cacheAlarm", (alarm) => {
-  if (alarm) return;
-  chrome.alarms.create("cacheAlarm", {
-    delayInMinutes: 1,
-    periodInMinutes: 12 * 60,
-  });
+  if (!alarm || (alarm && alarm.periodInMinutes === 12 * 60)) {
+    chrome.alarms.clear("cacheAlarm");
+    chrome.alarms.create("cacheAlarm", {
+      delayInMinutes: 1,
+      periodInMinutes: 60,
+    });
+  }
 });
 
 chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
