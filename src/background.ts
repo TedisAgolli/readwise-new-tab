@@ -129,39 +129,19 @@ chrome.alarms.get("cacheAlarm", (alarm) => {
 
 chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
   if (request.type === "get_highlight") {
-    localforage.getItem("token", (err, token: string | null) => {
-      if (!token) return;
-      localforage.getItem(
-        BOOKS_AND_HIGHLIGHTS,
-        (err, booksAndHighlights: BooksAndHighlights | null) => {
-          if (booksAndHighlights) {
-            sendResponse(getRandomHighlight(booksAndHighlights));
-          } else {
-            getAllReadwiseData(token, sendResponse);
-          }
-        }
-      );
-    });
-  } else if (request.type === "cache_data") {
-    localforage.getItem("token", (err, token: string | null) => {
-      if (!token) return;
-      getAllReadwiseData(token, () => {});
-    });
-  } else if (request.type === "store_readwise_token") {
-    localforage.setItem("token", request.token, (err, token) => {
-      sendResponse(token);
-    });
-  } else if (request.type === "get_readwise_token") {
-    localforage.getItem("token", (err, token: string | null) => {
-      sendResponse(token);
-    });
-  } else if (request.type === "is_loading_data") {
+    const token = request.token;
+    if (!token) return;
     localforage.getItem(
-      "loadingData",
-      (err, value: { isLoadingData: boolean } | null) => {
-        sendResponse(value && value.isLoadingData);
+      BOOKS_AND_HIGHLIGHTS,
+      (err, booksAndHighlights: BooksAndHighlights | null) => {
+        if (booksAndHighlights) {
+          sendResponse(getRandomHighlight(booksAndHighlights));
+        } else {
+          getAllReadwiseData(token, sendResponse);
+        }
       }
     );
   }
+
   return true;
 });
