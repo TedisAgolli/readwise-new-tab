@@ -127,6 +127,19 @@ function App() {
           </form>
         ))}
       <ReadwiseHighlight quoteAndCover={quoteAndCover} />
+      <div className="absolute bottom-1 right-3">
+        <span className="text-xs text-white italic">Made by </span>
+        <a
+          className="underline text-white"
+          href="https://tedis.me"
+          target="_blank"
+        >
+          Tedis
+        </a>
+        <span role="img" aria-label="wave">
+          👋
+        </span>
+      </div>
     </div>
   );
 }
