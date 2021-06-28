@@ -30,6 +30,7 @@ function App() {
   const [showTokenForm, setShowTokenForm] = useState(false);
   const [tokenIsStored, setTokenIsStored] = useState(false);
   const [editingToken, setTokenIsEditing] = useState(false);
+  const [isTokenWrong, setIsTokenWrong] = useState(false);
   async function getToken() {
     await browserAPI.get("readwiseToken", (token) => {
       setTokenIsStored(Boolean(token));
@@ -54,17 +55,30 @@ function App() {
 
   function storeToken(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    browserAPI.store("readwiseToken", token, () => {
-      setTokenIsStored(true);
-      setTokenIsEditing(false);
-      browserAPI.sendMessage(
-        { type: "get_highlight", token },
-        (quoteAndCover) => {
-          if (quoteAndCover) {
-            setQuoteAndCover(quoteAndCover);
-          }
-        }
-      );
+    fetch("https://readwise.io/api/v2/auth", {
+      method: "Get",
+      mode: "cors",
+      headers: {
+        Authorization: `TOKEN ${token}`,
+      },
+    }).then((res) => {
+      if (res.status === 204) {
+        setIsTokenWrong(false);
+        browserAPI.store("readwiseToken", token, () => {
+          setTokenIsStored(true);
+          setTokenIsEditing(false);
+          browserAPI.sendMessage(
+            { type: "get_highlight", token },
+            (quoteAndCover) => {
+              if (quoteAndCover) {
+                setQuoteAndCover(quoteAndCover);
+              }
+            }
+          );
+        });
+      } else {
+        setIsTokenWrong(true);
+      }
     });
   }
 
@@ -90,31 +104,57 @@ function App() {
             <div>
               <label
                 htmlFor="token"
-                className="block text-sm font-medium text-white"
+                className="block text-base font-medium text-white"
               >
                 Token
               </label>
               <div className="mt-1">
                 <input
                   type="text"
-                  className="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md px-1"
+                  className={` ${
+                    isTokenWrong ? "border-2 border-red-500" : ""
+                  } shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md px-1`}
                   id="token"
                   name="token"
                   onChange={(e) => setToken(e.target.value)}
                   value={token}
                 />
-                <div>
-                  <span className="text-gray-300">
-                    Your Readwise Auth Token.{" "}
-                    <a
-                      className="text-red-400"
-                      href="https://readwise.io/access_token"
-                      target="_blank"
+                {isTokenWrong && (
+                  <div className="flex space-x-1 items-center font-semibold text-sm text-red-500 mt-1">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      className="h-6 w-6"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
                     >
-                      Get it here
-                    </a>{" "}
-                    or click the extension icon
-                  </span>
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                      />
+                    </svg>
+                    <span>
+                      The token is incorrect.
+                      <br /> Make sure you copied it properly or{" "}
+                      <a className="underline" href="mailto:hey@tedis.me">
+                        contact support
+                      </a>{" "}
+                      for help.
+                    </span>
+                  </div>
+                )}
+                <div className="text-gray-300 mt-1">
+                  Your Readwise Auth Token.{" "}
+                  <a
+                    className="underline"
+                    href="https://readwise.io/access_token"
+                    target="_blank"
+                  >
+                    Get it here
+                  </a>{" "}
+                  or click the extension icon.
                 </div>
               </div>
             </div>
