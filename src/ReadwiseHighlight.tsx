@@ -4,11 +4,12 @@ const md = new MarkdownIt();
 
 function ReadwiseHighlight(props: {
   quoteAndCover: { quote: string; cover: string; id: string };
+  getHighlight: () => void;
 }) {
   const { quote, cover, id } = props.quoteAndCover;
   return (
     // Default state if src or quote empty
-    <div className="flex flex-col mt-28 mx-auto max-w-2xl">
+    <div className="flex flex-col mt-28 mx-auto max-w-2xl mb-12">
       {quote ? (
         <>
           <div className="mx-auto relative -mb-4 max-h-48 ">
@@ -18,34 +19,29 @@ function ReadwiseHighlight(props: {
               className="-mb-1 max-h-48 max-w-48"
             />
           </div>
+          <a
+            title="Open in Readwise"
+            target="_blank"
+            href={`https://readwise.io/open/${id}`}
+            className="m-1 ml-auto underline text-white"
+          >
+            Go to highlight
+          </a>
           <div className="flex flex-col bg-opacity-30 rounded-lg shadow-xl border-black bg-gradient-to-r from-red-400 to-pink-500">
-            <a
-              title="Open in Readwise"
-              target="_blank"
-              href={`https://readwise.io/open/${id}`}
-              className="m-1 ml-auto"
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="24"
-                height="24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                className="feather feather-external-link"
-              >
-                <path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6M15 3h6v6M10 14L21 3" />
-              </svg>
-            </a>
             <div
-              className="m-3 text-white text-xl font-semibold"
+              className="m-3 p-2 italic text-xl text-white font-semibold"
               dangerouslySetInnerHTML={{
                 __html: md.render(quote),
               }}
             ></div>
           </div>
+          <button
+            className="underline text-white text-center background-transparent px-8 py-3 outline-none focus:outline-none mr-1 mb-1"
+            onClick={props.getHighlight}
+            type="button"
+          >
+            See another highlight &gt;
+          </button>
         </>
       ) : (
         <div className="bg-opacity-30 rounded-lg shadow-xl border-black bg-gradient-to-r from-red-400 to-pink-500">

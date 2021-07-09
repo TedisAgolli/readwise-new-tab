@@ -2,6 +2,8 @@ import "./App.css";
 import React, { useState, useEffect } from "react";
 import ReadwiseHighlight from "./ReadwiseHighlight";
 import browserAPI from "./BrowserApi/CacheAccessor";
+import "react-responsive-carousel/lib/styles/carousel.min.css"; // requires a loader
+import { Carousel } from "react-responsive-carousel";
 
 const editIcon = (
   <svg
@@ -19,6 +21,7 @@ const editIcon = (
     />
   </svg>
 );
+const NUM_HIGHLIGHTS_KEY = "numHighlights";
 
 function App() {
   const [quoteAndCover, setQuoteAndCover] = useState({
@@ -31,20 +34,39 @@ function App() {
   const [tokenIsStored, setTokenIsStored] = useState(false);
   const [editingToken, setTokenIsEditing] = useState(false);
   const [isTokenWrong, setIsTokenWrong] = useState(false);
+  const [numHighlightsViewed, setNumHighlightsViewed] = useState(0);
+  function getHighlight(token: string) {
+    browserAPI.sendMessage(
+      { type: "get_highlight", token: token },
+      (quoteAndCover) => {
+        if (quoteAndCover) {
+          setQuoteAndCover(quoteAndCover);
+          setNumHighlightsViewed(numHighlightsViewed + 1);
+          browserAPI.get(NUM_HIGHLIGHTS_KEY, (numHighlights) => {
+            if (numHighlights) {
+              const newNumHighlights = numHighlights + 1;
+              browserAPI.store(
+                NUM_HIGHLIGHTS_KEY,
+                newNumHighlights,
+                (res: any) => {}
+              );
+
+              setNumHighlightsViewed(newNumHighlights);
+            } else {
+              browserAPI.store(NUM_HIGHLIGHTS_KEY, 1, (res: any) => {});
+            }
+          });
+        }
+      }
+    );
+  }
   async function getToken() {
     await browserAPI.get("readwiseToken", (token) => {
       setTokenIsStored(Boolean(token));
       setShowTokenForm(true);
       if (token) {
+        getHighlight(token);
         setToken(token);
-        browserAPI.sendMessage(
-          { type: "get_highlight", token: token },
-          (quoteAndCover) => {
-            if (quoteAndCover) {
-              setQuoteAndCover(quoteAndCover);
-            }
-          }
-        );
       }
     });
   }
@@ -83,7 +105,7 @@ function App() {
   }
 
   return (
-    <div className="bg-indigo-600">
+    <div>
       {showTokenForm &&
         (tokenIsStored && !editingToken ? (
           <div className="m-3 flex space-x-2 items-center">
@@ -166,9 +188,31 @@ function App() {
             </button>
           </form>
         ))}
-      <ReadwiseHighlight quoteAndCover={quoteAndCover} />
-      <div className="absolute bottom-1 right-3">
-        <span className="text-xs text-white italic">Made by </span>
+      <ReadwiseHighlight
+        quoteAndCover={quoteAndCover}
+        getHighlight={() => {
+          getHighlight(token);
+        }}
+      />
+      {/* <Carousel
+        className="mt-28 mx-auto max-w-2xl p-1"
+        selectedItem={2}
+        // Doesn't work in new tab 😢
+        autoFocus={true}
+        useKeyboardArrows={true}
+        showStatus={false}
+      >
+        <ReadwiseHighlight quoteAndCover={quoteAndCover} />
+        <ReadwiseHighlight quoteAndCover={quoteAndCover} />
+        <ReadwiseHighlight quoteAndCover={quoteAndCover} />
+      </Carousel> */}
+      <span className="absolute bottom-3 left-3 text-white text-xs">
+        {numHighlightsViewed}{" "}
+        {numHighlightsViewed > 1 ? "highlights" : "highlight"} viewed
+      </span>
+      <div className="absolute bottom-3 right-3 text-white">
+        <span className="font-bold">Readwise New Tab</span>{" "}
+        <span> brought to you by </span>
         <a
           className="underline text-white"
           href="https://tedis.me"
@@ -177,6 +221,7 @@ function App() {
           Tedis
         </a>
         <span role="img" aria-label="wave">
+          {" "}
           👋
         </span>
       </div>

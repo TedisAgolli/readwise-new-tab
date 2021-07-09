@@ -3,7 +3,7 @@
 @tailwind utilities;
 
 html {
-  background: #4f46e5;
+  @apply bg-indigo-600;
 }
 .App {
   text-align: center;
