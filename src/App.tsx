@@ -21,7 +21,6 @@ const editIcon = (
     />
   </svg>
 );
-const NUM_HIGHLIGHTS_KEY = "numHighlights";
 
 function App() {
   const [quoteAndCover, setQuoteAndCover] = useState({
@@ -34,28 +33,12 @@ function App() {
   const [tokenIsStored, setTokenIsStored] = useState(false);
   const [editingToken, setTokenIsEditing] = useState(false);
   const [isTokenWrong, setIsTokenWrong] = useState(false);
-  const [numHighlightsViewed, setNumHighlightsViewed] = useState(0);
   function getHighlight(token: string) {
     browserAPI.sendMessage(
       { type: "get_highlight", token: token },
       (quoteAndCover) => {
         if (quoteAndCover) {
           setQuoteAndCover(quoteAndCover);
-          setNumHighlightsViewed(numHighlightsViewed + 1);
-          browserAPI.get(NUM_HIGHLIGHTS_KEY, (numHighlights) => {
-            if (numHighlights) {
-              const newNumHighlights = numHighlights + 1;
-              browserAPI.store(
-                NUM_HIGHLIGHTS_KEY,
-                newNumHighlights,
-                (res: any) => {}
-              );
-
-              setNumHighlightsViewed(newNumHighlights);
-            } else {
-              browserAPI.store(NUM_HIGHLIGHTS_KEY, 1, (res: any) => {});
-            }
-          });
         }
       }
     );
@@ -206,10 +189,6 @@ function App() {
         <ReadwiseHighlight quoteAndCover={quoteAndCover} />
         <ReadwiseHighlight quoteAndCover={quoteAndCover} />
       </Carousel> */}
-      <span className="absolute bottom-3 left-3 text-white text-xs">
-        {numHighlightsViewed}{" "}
-        {numHighlightsViewed > 1 ? "highlights" : "highlight"} viewed
-      </span>
       <div className="absolute bottom-3 right-3 text-white">
         <span className="font-bold">Readwise New Tab</span>{" "}
         <span> brought to you by </span>
