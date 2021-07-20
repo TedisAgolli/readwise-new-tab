@@ -177,18 +177,6 @@ function App() {
           getHighlight(token);
         }}
       />
-      {/* <Carousel
-        className="mt-28 mx-auto max-w-2xl p-1"
-        selectedItem={2}
-        // Doesn't work in new tab 😢
-        autoFocus={true}
-        useKeyboardArrows={true}
-        showStatus={false}
-      >
-        <ReadwiseHighlight quoteAndCover={quoteAndCover} />
-        <ReadwiseHighlight quoteAndCover={quoteAndCover} />
-        <ReadwiseHighlight quoteAndCover={quoteAndCover} />
-      </Carousel> */}
       <div className="absolute bottom-3 right-3 text-white">
         <span className="font-bold">Readwise New Tab</span>{" "}
         <span> brought to you by </span>

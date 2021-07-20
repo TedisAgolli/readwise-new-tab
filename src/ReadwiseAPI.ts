@@ -17,6 +17,7 @@ export interface Highlight {
   color: string;
   updated: string;
   book_id: number;
+  tags: [{ id: number; name: string }];
 }
 
 export interface Book {

@@ -44,6 +44,15 @@ async function getAllReadwiseData(
                       currentBooksAndHighlights: BooksAndHighlights | null
                     ) => {
                       let booksAndHighlights;
+                      // remove highlights user has discarded
+                      if (highlights) {
+                        highlights = (highlights as Highlight[]).filter(
+                          (highlight) =>
+                            !highlight.tags.some(
+                              (tag) => tag.name === "discard"
+                            )
+                        );
+                      }
                       if (currentBooksAndHighlights) {
                         booksAndHighlights = {
                           books: [...currentBooksAndHighlights.books, ...books],
@@ -124,6 +133,19 @@ chrome.alarms.get("cacheAlarm", (alarm) => {
       delayInMinutes: 1,
       periodInMinutes: 60,
     });
+  }
+});
+
+chrome.runtime.onInstalled.addListener((details) => {
+  const currentVersion = chrome.runtime.getManifest().version;
+  const previousVersion = details.previousVersion;
+  const reason = details.reason;
+  console.log(`Previous Version: ${previousVersion}`);
+  console.log(`Current Version: ${currentVersion}`);
+
+  if (reason === "update") {
+    console.log("Clearing cache because of update");
+    localforage.clear();
   }
 });
 
