@@ -3,7 +3,9 @@ import React, { useState, useEffect } from "react";
 import ReadwiseHighlight from "./ReadwiseHighlight";
 import browserAPI from "./BrowserApi/CacheAccessor";
 import "react-responsive-carousel/lib/styles/carousel.min.css"; // requires a loader
-import { Carousel } from "react-responsive-carousel";
+import { ChevronUpIcon } from "@heroicons/react/solid";
+import { Disclosure } from "@headlessui/react";
+import ImportButton, { ButtonStates } from "./ImportButton";
 
 const editIcon = (
   <svg
@@ -22,6 +24,24 @@ const editIcon = (
   </svg>
 );
 
+const posts = [
+  {
+    title: "Paul Graham's favorite quotes",
+    href: "http://paulgraham.com/quo.html",
+    category: { name: "Book" },
+    description:
+      "Import a collection of Paul Graham's favorite quotes into your Readwise account",
+    imageUrl:
+      "https://images.unsplash.com/photo-1496128858413-b36217c2ce36?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=1679&q=80",
+    author: {
+      name: "Paul Graham",
+      href: "http://paulgraham.com",
+      imageUrl:
+        "https://pbs.twimg.com/profile_images/1824002576/pg-railsconf_400x400.jpg",
+    },
+  },
+];
+
 function App() {
   const [quoteAndCover, setQuoteAndCover] = useState({
     quote: "",
@@ -33,6 +53,10 @@ function App() {
   const [tokenIsStored, setTokenIsStored] = useState(false);
   const [editingToken, setTokenIsEditing] = useState(false);
   const [isTokenWrong, setIsTokenWrong] = useState(false);
+  // store this in localStorage
+  const [importButtonState, setImportButtonState] = useState<ButtonStates>(
+    ButtonStates.BASE
+  );
   function getHighlight(token: string) {
     browserAPI.sendMessage(
       { type: "get_highlight", token: token },
@@ -85,6 +109,14 @@ function App() {
         setIsTokenWrong(true);
       }
     });
+  }
+
+  function importBook() {
+    browserAPI.sendMessage({ type: "import_book", token }, (res) => {
+      console.log(res);
+      setImportButtonState(ButtonStates.LOADED);
+    });
+    setImportButtonState(ButtonStates.LOADING);
   }
 
   return (
@@ -171,6 +203,77 @@ function App() {
             </button>
           </form>
         ))}
+      <div className="mt-4 ml-2 lg:w-56 w-32 absolute lg:block">
+        <Disclosure>
+          {({ open }) => (
+            <>
+              <Disclosure.Button className="flex justify-between w-full px-4 py-2 text-sm font-medium text-left text-purple-900 bg-purple-100 rounded-lg hover:bg-purple-200 focus:outline-none focus-visible:ring focus-visible:ring-purple-500 focus-visible:ring-opacity-75">
+                <span>Import a book!</span>
+                <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium  bg-red-200 text-red-800">
+                  New
+                </span>
+                <ChevronUpIcon
+                  className={`${
+                    open ? "transform rotate-180" : ""
+                  } w-5 h-5 text-purple-500`}
+                />
+              </Disclosure.Button>
+              <Disclosure.Panel className="px-4 pt-4 pb-2 text-sm text-gray-500">
+                {posts.map((post) => (
+                  <div
+                    key={post.title}
+                    className="flex flex-col rounded-lg shadow-lg overflow-hidden"
+                  >
+                    <div className="flex-1 bg-white p-6 flex flex-col justify-between">
+                      <div className="flex items-center">
+                        <div className="flex-shrink-0">
+                          <a href={post.author.href}>
+                            <span className="sr-only">{post.author.name}</span>
+                            <img
+                              className="h-10 w-10 rounded-full"
+                              src={post.author.imageUrl}
+                              alt=""
+                            />
+                          </a>
+                        </div>
+                        <div className="ml-3">
+                          <p className="text-sm font-medium text-gray-900">
+                            <a
+                              href={post.author.href}
+                              className="hover:underline"
+                            >
+                              {post.author.name}
+                            </a>
+                          </p>
+                        </div>
+                      </div>
+                      <div className="flex-1 hidden lg:block">
+                        <p className="hidden lg:block mt-3 text-base text-gray-700">
+                          Import a collection of Paul Graham's{" "}
+                          <a
+                            className="underline text-blue-600 hover:text-blue-800 visited:text-purple-600"
+                            href="http://paulgraham.com/quo.html"
+                          >
+                            favorite quotes
+                          </a>{" "}
+                          into your Readwise account
+                        </p>
+                      </div>
+                      <div className="mt-2 mx-auto">
+                        {/* todo: analytics on whether people use this */}
+                        <ImportButton
+                          buttonState={importButtonState}
+                          importBook={importBook}
+                        />
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </Disclosure.Panel>
+            </>
+          )}
+        </Disclosure>
+      </div>
       <ReadwiseHighlight
         quoteAndCover={quoteAndCover}
         getHighlight={() => {

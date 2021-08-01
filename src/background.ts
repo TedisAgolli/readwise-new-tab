@@ -6,7 +6,14 @@ import {
   BooksAndHighlights,
   Highlight,
 } from "./ReadwiseApi";
+import Papa from "papaparse";
 const BOOKS_AND_HIGHLIGHTS = "booksAndHighlights";
+interface CustomHighlight {
+  Highlight: string;
+  Author: string;
+  Title: string;
+  URL: string;
+}
 
 chrome.browserAction.onClicked.addListener(function (tab) {
   chrome.tabs.update({ url: "https://readwise.io/access_token" });
@@ -163,7 +170,49 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
         }
       }
     );
-  }
+  } else if (request.type === "import_book") {
+    const token = request.token;
+    Papa.parse(
+      "https://readwise-new-tab.s3.amazonaws.com/paul_graham_quotes.csv",
+      {
+        header: true,
+        download: true,
+        complete: function (results) {
+          const data = results.data as CustomHighlight[];
+          console.log("🚀 ~ file: background.ts ~ line 174 ~ results", results);
+          const highlightToSave = data.map((d) => {
+            return {
+              text: d.Highlight,
+              title: d.Title,
+              author: d.Author,
+              url: d.URL,
+            };
+          });
+          console.log(
+            "🚀 ~ file: background.ts ~ line 191 ~ highlightToSave ~ highlightToSave",
+            highlightToSave
+          );
 
+          fetch("https://readwise.io/api/v2/highlights/", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Token ${token}`,
+            },
+            body: JSON.stringify({
+              highlights: highlightToSave,
+            }),
+          })
+            .then((res) => res.json())
+            .then((res) => {
+              console.log("good", res);
+              //todo: return success or not and update button accordingly
+              sendResponse(res);
+            })
+            .catch((err) => console.log("err", err));
+        },
+      }
+    );
+  }
   return true;
 });
