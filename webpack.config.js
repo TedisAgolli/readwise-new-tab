@@ -62,6 +62,7 @@ const config = {
       "react-dom": "@hot-loader/react-dom",
     },
   },
+  devtool: "cheap-module-source-map",
   devServer: {
     contentBase: "./dist",
   },
