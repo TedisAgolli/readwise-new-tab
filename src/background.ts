@@ -152,7 +152,7 @@ chrome.runtime.onInstalled.addListener((details) => {
 
   if (reason === "update") {
     console.log("Clearing cache because of update");
-    localforage.clear();
+    // localforage.clear();
   }
 });
 
@@ -179,7 +179,6 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
         download: true,
         complete: function (results) {
           const data = results.data as CustomHighlight[];
-          console.log("🚀 ~ file: background.ts ~ line 174 ~ results", results);
           const highlightToSave = data.map((d) => {
             return {
               text: d.Highlight,
@@ -188,10 +187,6 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
               url: d.URL,
             };
           });
-          console.log(
-            "🚀 ~ file: background.ts ~ line 191 ~ highlightToSave ~ highlightToSave",
-            highlightToSave
-          );
 
           fetch("https://readwise.io/api/v2/highlights/", {
             method: "POST",
@@ -203,15 +198,17 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
               highlights: highlightToSave,
             }),
           })
-            .then((res) => res.json())
-            .then((res) => {
-              console.log("good", res);
-              //todo: return success or not and update button accordingly
-              sendResponse(res);
+            .then(async (res) => {
+              sendResponse({ status: res.status, res: await res.json() });
             })
-            .catch((err) => console.log("err", err));
+            .catch((err) => sendResponse({ status: err }));
         },
       }
+    );
+
+    // record import button hit
+    fetch(
+      `https://api.countapi.xyz/hit/readwise-new-tab-ext/import-button-${process.env.NODE_ENV}`
     );
   }
   return true;

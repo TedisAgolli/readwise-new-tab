@@ -5,7 +5,8 @@ import browserAPI from "./BrowserApi/CacheAccessor";
 import "react-responsive-carousel/lib/styles/carousel.min.css"; // requires a loader
 import { ChevronUpIcon } from "@heroicons/react/solid";
 import { Disclosure } from "@headlessui/react";
-import ImportButton, { ButtonStates } from "./ImportButton";
+import { ButtonStates } from "./ImportButton";
+import ImportBook from "./ImportBook";
 
 const editIcon = (
   <svg
@@ -26,19 +27,31 @@ const editIcon = (
 
 const posts = [
   {
-    title: "Paul Graham's favorite quotes",
     href: "http://paulgraham.com/quo.html",
     category: { name: "Book" },
     description:
-      "Import a collection of Paul Graham's favorite quotes into your Readwise account",
-    imageUrl:
-      "https://images.unsplash.com/photo-1496128858413-b36217c2ce36?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=1679&q=80",
+      "Import Paul Graham's favorite quotes into your Readwise account",
     author: {
       name: "Paul Graham",
       href: "http://paulgraham.com",
       imageUrl:
         "https://pbs.twimg.com/profile_images/1824002576/pg-railsconf_400x400.jpg",
     },
+    source: "https://readwise-new-tab.s3.amazonaws.com/paul_graham_quotes.csv",
+  },
+  {
+    href: "https://mailbrew.com/library/naval-ravikant/top-tweets",
+    category: { name: "Book" },
+    description:
+      "Import Naval Ravikant's best tweets into your Readwise account",
+    author: {
+      name: "Naval Ravikant",
+      href: "http://nav.al",
+      imageUrl:
+        "https://pbs.twimg.com/profile_images/1256841238298292232/ycqwaMI2.jpg",
+    },
+    source:
+      "https://readwise-new-tab.s3.amazonaws.com/best_naval_ravikant_tweets.csv",
   },
 ];
 
@@ -57,6 +70,7 @@ function App() {
   const [importButtonState, setImportButtonState] = useState<ButtonStates>(
     ButtonStates.BASE
   );
+  const [highlightBookUrl, setHighlightBookUrl] = useState("");
   function getHighlight(token: string) {
     browserAPI.sendMessage(
       { type: "get_highlight", token: token },
@@ -69,6 +83,7 @@ function App() {
   }
   async function getToken() {
     await browserAPI.get("readwiseToken", (token) => {
+      //todo: fix this to not call multiple setStates
       setTokenIsStored(Boolean(token));
       setShowTokenForm(true);
       if (token) {
@@ -79,6 +94,15 @@ function App() {
   }
 
   useEffect(() => {
+    const importButtonState = localStorage.getItem("importButtonState");
+    if (importButtonState === ButtonStates.LOADED.toString()) {
+      setImportButtonState(ButtonStates.LOADED);
+    }
+    const highlightBookUrl = localStorage.getItem("importBookUrl");
+
+    if (highlightBookUrl) {
+      setHighlightBookUrl(highlightBookUrl);
+    }
     getToken();
   }, []);
 
@@ -111,16 +135,8 @@ function App() {
     });
   }
 
-  function importBook() {
-    browserAPI.sendMessage({ type: "import_book", token }, (res) => {
-      console.log(res);
-      setImportButtonState(ButtonStates.LOADED);
-    });
-    setImportButtonState(ButtonStates.LOADING);
-  }
-
   return (
-    <div>
+    <div className="test">
       {showTokenForm &&
         (tokenIsStored && !editingToken ? (
           <div className="m-3 flex space-x-2 items-center">
@@ -203,7 +219,7 @@ function App() {
             </button>
           </form>
         ))}
-      <div className="mt-4 ml-2 lg:w-56 w-32 absolute lg:block">
+      <div className="mt-4 ml-2 w-56 xl:absolute">
         <Disclosure>
           {({ open }) => (
             <>
@@ -220,54 +236,7 @@ function App() {
               </Disclosure.Button>
               <Disclosure.Panel className="px-4 pt-4 pb-2 text-sm text-gray-500">
                 {posts.map((post) => (
-                  <div
-                    key={post.title}
-                    className="flex flex-col rounded-lg shadow-lg overflow-hidden"
-                  >
-                    <div className="flex-1 bg-white p-6 flex flex-col justify-between">
-                      <div className="flex items-center">
-                        <div className="flex-shrink-0">
-                          <a href={post.author.href}>
-                            <span className="sr-only">{post.author.name}</span>
-                            <img
-                              className="h-10 w-10 rounded-full"
-                              src={post.author.imageUrl}
-                              alt=""
-                            />
-                          </a>
-                        </div>
-                        <div className="ml-3">
-                          <p className="text-sm font-medium text-gray-900">
-                            <a
-                              href={post.author.href}
-                              className="hover:underline"
-                            >
-                              {post.author.name}
-                            </a>
-                          </p>
-                        </div>
-                      </div>
-                      <div className="flex-1 hidden lg:block">
-                        <p className="hidden lg:block mt-3 text-base text-gray-700">
-                          Import a collection of Paul Graham's{" "}
-                          <a
-                            className="underline text-blue-600 hover:text-blue-800 visited:text-purple-600"
-                            href="http://paulgraham.com/quo.html"
-                          >
-                            favorite quotes
-                          </a>{" "}
-                          into your Readwise account
-                        </p>
-                      </div>
-                      <div className="mt-2 mx-auto">
-                        {/* todo: analytics on whether people use this */}
-                        <ImportButton
-                          buttonState={importButtonState}
-                          importBook={importBook}
-                        />
-                      </div>
-                    </div>
-                  </div>
+                  <ImportBook post={post} token={token} />
                 ))}
               </Disclosure.Panel>
             </>
