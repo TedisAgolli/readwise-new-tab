@@ -5,7 +5,6 @@ import browserAPI from "./BrowserApi/CacheAccessor";
 import "react-responsive-carousel/lib/styles/carousel.min.css"; // requires a loader
 import { ChevronUpIcon } from "@heroicons/react/solid";
 import { Disclosure } from "@headlessui/react";
-import { ButtonStates } from "./ImportButton";
 import ImportBook from "./ImportBook";
 
 const editIcon = (
@@ -52,6 +51,11 @@ const posts = [
     },
     source:
       "https://readwise-new-tab.s3.amazonaws.com/best_naval_ravikant_tweets.csv",
+    sourceAttribution: {
+      href: "https://mailbrew.com/",
+      image:
+        "https://pbs.twimg.com/profile_images/1418175281626497030/_FQnoBRe_400x400.jpg",
+    },
   },
 ];
 
@@ -66,11 +70,6 @@ function App() {
   const [tokenIsStored, setTokenIsStored] = useState(false);
   const [editingToken, setTokenIsEditing] = useState(false);
   const [isTokenWrong, setIsTokenWrong] = useState(false);
-  // store this in localStorage
-  const [importButtonState, setImportButtonState] = useState<ButtonStates>(
-    ButtonStates.BASE
-  );
-  const [highlightBookUrl, setHighlightBookUrl] = useState("");
   function getHighlight(token: string) {
     browserAPI.sendMessage(
       { type: "get_highlight", token: token },
@@ -94,15 +93,6 @@ function App() {
   }
 
   useEffect(() => {
-    const importButtonState = localStorage.getItem("importButtonState");
-    if (importButtonState === ButtonStates.LOADED.toString()) {
-      setImportButtonState(ButtonStates.LOADED);
-    }
-    const highlightBookUrl = localStorage.getItem("importBookUrl");
-
-    if (highlightBookUrl) {
-      setHighlightBookUrl(highlightBookUrl);
-    }
     getToken();
   }, []);
 

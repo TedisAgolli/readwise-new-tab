@@ -171,41 +171,47 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
       }
     );
   } else if (request.type === "import_book") {
-    const token = request.token;
-    Papa.parse(
-      "https://readwise-new-tab.s3.amazonaws.com/paul_graham_quotes.csv",
-      {
-        header: true,
-        download: true,
-        complete: function (results) {
-          const data = results.data as CustomHighlight[];
-          const highlightToSave = data.map((d) => {
-            return {
-              text: d.Highlight,
-              title: d.Title,
-              author: d.Author,
-              url: d.URL,
-            };
-          });
-
-          fetch("https://readwise.io/api/v2/highlights/", {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: `Token ${token}`,
-            },
-            body: JSON.stringify({
-              highlights: highlightToSave,
-            }),
-          })
-            .then(async (res) => {
-              sendResponse({ status: res.status, res: await res.json() });
-            })
-            .catch((err) => sendResponse({ status: err }));
-        },
-      }
+    const { token, source } = request;
+    console.log(
+      "🚀 ~ file: background.ts ~ line 175 ~  token, source",
+      token,
+      source
     );
+    Papa.parse(source, {
+      header: true,
+      download: true,
+      complete: function (results) {
+        const data = results.data as CustomHighlight[];
+        const highlightToSave = data.map((d) => {
+          return {
+            text: d.Highlight,
+            title: d.Title,
+            author: d.Author,
+            url: d.URL,
+          };
+        });
 
+        fetch("https://readwise.io/api/v2/highlights/", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Token ${token}`,
+          },
+          body: JSON.stringify({
+            highlights: highlightToSave,
+          }),
+        })
+          .then(async (res) => {
+            sendResponse({ status: res.status, res: await res.json() });
+          })
+          .catch((err) => sendResponse({ status: err }));
+      },
+    });
+
+    console.log(
+      "🚀 ~ file: background.ts ~ line 217 ~ process.env.NODE_ENV",
+      process.env.NODE_ENV
+    );
     // record import button hit
     fetch(
       `https://api.countapi.xyz/hit/readwise-new-tab-ext/import-button-${process.env.NODE_ENV}`
