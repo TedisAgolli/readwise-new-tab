@@ -4,6 +4,7 @@ import browserAPI from "./BrowserApi/CacheAccessor";
 import ImportButton, { ButtonStates } from "./ImportButton";
 
 interface BookToImport {
+  id: string;
   href: string;
   source: string;
   sourceAttribution?: { image: string; href: string };
@@ -14,21 +15,12 @@ interface BookToImport {
 function ImportBook(props: { post: BookToImport; token: string }) {
   const { post, token } = props;
 
-  //   const [importButtonState, setImportButtonState] = useState<ButtonStates>(
-  //     ButtonStates.BASE
-  //   );
-  //   const [highlightBookUrl, setHighlightBookUrl] = useState("");
   const [state, setState] = useState({
     importButtonState: ButtonStates.BASE,
     highlightBookUrl: "",
   });
-  console.log(
-    "🚀 ~ file: ImportBook.tsx ~ line 16 ~ ImportBook ~  post",
-    state
-  );
 
   useEffect(() => {
-    console.log("use effect");
     async function populateImportData() {
       localforage.getItem(
         post.href,
@@ -39,7 +31,6 @@ function ImportBook(props: { post: BookToImport; token: string }) {
             bookUrl: string;
           } | null
         ) => {
-          console.log("setting state in use effect");
           setState({
             importButtonState: importData?.importedState
               ? ButtonStates.LOADED
@@ -52,26 +43,29 @@ function ImportBook(props: { post: BookToImport; token: string }) {
     populateImportData();
   }, []);
 
-  function importBook(token: string, source: string) {
-    browserAPI.sendMessage({ type: "import_book", source, token }, (res) => {
-      console.log("import status", JSON.stringify(res));
-      if (res.status === 200) {
-        const bookUrl = res.res[0].highlights_url;
-        localforage.setItem(post.href, {
-          importedState: ButtonStates.LOADED,
-          bookUrl,
-        });
-        setState({
-          importButtonState: ButtonStates.LOADED,
-          highlightBookUrl: bookUrl,
-        });
-      } else {
-        setState({
-          ...state,
-          importButtonState: ButtonStates.FAILED,
-        });
+  function importBook(token: string, post: BookToImport) {
+    browserAPI.sendMessage(
+      { type: "import_book", source: post.source, id: post.id, token },
+      (res) => {
+        console.log("import status", JSON.stringify(res));
+        if (res.status === 200) {
+          const bookUrl = res.res[0].highlights_url;
+          localforage.setItem(post.href, {
+            importedState: ButtonStates.LOADED,
+            bookUrl,
+          });
+          setState({
+            importButtonState: ButtonStates.LOADED,
+            highlightBookUrl: bookUrl,
+          });
+        } else {
+          setState({
+            ...state,
+            importButtonState: ButtonStates.FAILED,
+          });
+        }
       }
-    });
+    );
     setState({
       ...state,
       importButtonState: ButtonStates.LOADING,
@@ -101,7 +95,7 @@ function ImportBook(props: { post: BookToImport; token: string }) {
           {/* todo: analytics on whether people use this */}
           <ImportButton
             buttonState={state.importButtonState}
-            importBook={() => importBook(token, post.source)}
+            importBook={() => importBook(token, post)}
             resetButton={() =>
               setState({ ...state, importButtonState: ButtonStates.BASE })
             }

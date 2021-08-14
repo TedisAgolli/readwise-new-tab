@@ -171,7 +171,7 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
       }
     );
   } else if (request.type === "import_book") {
-    const { token, source } = request;
+    const { token, source, id } = request;
     console.log(
       "🚀 ~ file: background.ts ~ line 175 ~  token, source",
       token,
@@ -214,7 +214,7 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
     );
     // record import button hit
     fetch(
-      `https://api.countapi.xyz/hit/readwise-new-tab-ext/import-button-${process.env.NODE_ENV}`
+      `https://api.countapi.xyz/hit/readwise-new-tab-ext/import-book-${id}-${process.env.NODE_ENV}`
     );
   }
   return true;

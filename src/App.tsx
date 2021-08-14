@@ -6,6 +6,7 @@ import "react-responsive-carousel/lib/styles/carousel.min.css"; // requires a lo
 import { ChevronUpIcon } from "@heroicons/react/solid";
 import { Disclosure } from "@headlessui/react";
 import ImportBook from "./ImportBook";
+import localforage from "localforage";
 
 const editIcon = (
   <svg
@@ -26,8 +27,8 @@ const editIcon = (
 
 const posts = [
   {
+    id: "1",
     href: "http://paulgraham.com/quo.html",
-    category: { name: "Book" },
     description:
       "Import Paul Graham's favorite quotes into your Readwise account",
     author: {
@@ -39,24 +40,37 @@ const posts = [
     source: "https://readwise-new-tab.s3.amazonaws.com/paul_graham_quotes.csv",
   },
   {
-    href: "https://mailbrew.com/library/naval-ravikant/top-tweets",
-    category: { name: "Book" },
+    id: "2",
+    href: "https://www.brainyquote.com/authors/balaji-srinivasan-quotes",
     description:
-      "Import Naval Ravikant's best tweets into your Readwise account",
+      "Import Balaji Srinivasan's best quotes into your Readwise account",
     author: {
-      name: "Naval Ravikant",
-      href: "http://nav.al",
+      name: "Balaji Srinivasan",
+      href: "https://balajis.com/",
       imageUrl:
-        "https://pbs.twimg.com/profile_images/1256841238298292232/ycqwaMI2.jpg",
+        "https://www.gravatar.com/avatar/dafd097d6aef2117a3dad4bae3b067cf?s=250&d=mm&r=x",
     },
     source:
-      "https://readwise-new-tab.s3.amazonaws.com/best_naval_ravikant_tweets.csv",
-    sourceAttribution: {
-      href: "https://mailbrew.com/",
-      image:
-        "https://pbs.twimg.com/profile_images/1418175281626497030/_FQnoBRe_400x400.jpg",
-    },
+      "https://readwise-new-tab.s3.amazonaws.com/balaji_srinivasan_quotes.csv",
   },
+  //   {
+  //     href: "https://mailbrew.com/library/naval-ravikant/top-tweets",
+  //     description:
+  //       "Import Naval Ravikant's best tweets into your Readwise account",
+  //     author: {
+  //       name: "Naval Ravikant",
+  //       href: "http://nav.al",
+  //       imageUrl:
+  //         "https://pbs.twimg.com/profile_images/1256841238298292232/ycqwaMI2.jpg",
+  //     },
+  //     source:
+  //       "https://readwise-new-tab.s3.amazonaws.com/best_naval_ravikant_tweets.csv",
+  //     sourceAttribution: {
+  //       href: "https://mailbrew.com/",
+  //       image:
+  //         "https://pbs.twimg.com/profile_images/1418175281626497030/_FQnoBRe_400x400.jpg",
+  //     },
+  //   },
 ];
 
 function App() {
@@ -70,6 +84,7 @@ function App() {
   const [tokenIsStored, setTokenIsStored] = useState(false);
   const [editingToken, setTokenIsEditing] = useState(false);
   const [isTokenWrong, setIsTokenWrong] = useState(false);
+  const [showNewLabel, setShowNewLabel] = useState(true);
   function getHighlight(token: string) {
     browserAPI.sendMessage(
       { type: "get_highlight", token: token },
@@ -94,6 +109,11 @@ function App() {
 
   useEffect(() => {
     getToken();
+    localforage.getItem("showNewLabel", (err, showNewLabel: boolean | null) => {
+      if (showNewLabel !== null) {
+        setShowNewLabel(showNewLabel);
+      }
+    });
   }, []);
 
   function storeToken(event: React.FormEvent<HTMLFormElement>) {
@@ -126,7 +146,7 @@ function App() {
   }
 
   return (
-    <div className="test">
+    <div>
       {showTokenForm &&
         (tokenIsStored && !editingToken ? (
           <div className="m-3 flex space-x-2 items-center">
@@ -209,28 +229,35 @@ function App() {
             </button>
           </form>
         ))}
-      <div className="mt-4 ml-2 w-56 xl:absolute">
+      <div className="mt-4 ml-2 w-56 lg:absolute">
         <Disclosure>
-          {({ open }) => (
-            <>
-              <Disclosure.Button className="flex justify-between w-full px-4 py-2 text-sm font-medium text-left text-purple-900 bg-purple-100 rounded-lg hover:bg-purple-200 focus:outline-none focus-visible:ring focus-visible:ring-purple-500 focus-visible:ring-opacity-75">
-                <span>Import a book!</span>
-                <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium  bg-red-200 text-red-800">
-                  New
-                </span>
-                <ChevronUpIcon
-                  className={`${
-                    open ? "transform rotate-180" : ""
-                  } w-5 h-5 text-purple-500`}
-                />
-              </Disclosure.Button>
-              <Disclosure.Panel className="px-4 pt-4 pb-2 text-sm text-gray-500">
-                {posts.map((post) => (
-                  <ImportBook post={post} token={token} />
-                ))}
-              </Disclosure.Panel>
-            </>
-          )}
+          {({ open }) => {
+            if (open && showNewLabel) {
+              localforage.setItem("showNewLabel", false);
+            }
+            return (
+              <>
+                <Disclosure.Button className="flex justify-between w-full px-4 py-2 text-sm font-medium text-left text-purple-900 bg-purple-100 rounded-lg hover:bg-purple-200 focus:outline-none focus-visible:ring focus-visible:ring-purple-500 focus-visible:ring-opacity-75">
+                  <span>Import a book!</span>
+                  {showNewLabel && (
+                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium  bg-red-200 text-red-800">
+                      New
+                    </span>
+                  )}
+                  <ChevronUpIcon
+                    className={`${
+                      open ? "transform rotate-180" : ""
+                    } w-5 h-5 text-purple-500`}
+                  />
+                </Disclosure.Button>
+                <Disclosure.Panel className="px-4 pt-4 pb-2 text-sm text-gray-500">
+                  {posts.map((post) => (
+                    <ImportBook key={post.id} post={post} token={token} />
+                  ))}
+                </Disclosure.Panel>
+              </>
+            );
+          }}
         </Disclosure>
       </div>
       <ReadwiseHighlight
@@ -239,7 +266,7 @@ function App() {
           getHighlight(token);
         }}
       />
-      <div className="absolute bottom-3 right-3 text-white">
+      <div className="absolute bottom-3 right-3 text-white hidden lg:block">
         <span className="font-bold">Readwise New Tab</span>{" "}
         <span> brought to you by </span>
         <a
