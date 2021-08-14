@@ -9,10 +9,11 @@ export interface CacheAccessor {
 console.log(process.env.NODE_ENV);
 let browserAPI;
 
-if (process.env.NODE_ENV === "production") {
-  browserAPI = new ChromeCacheAccessor();
-} else if (process.env.NODE_ENV === "development") {
-  browserAPI = new FakeCacheAccessor();
-}
+// if (process.env.NODE_ENV === "production") {
+//   browserAPI = new ChromeCacheAccessor();
+// } else if (process.env.NODE_ENV === "development") {
+//   browserAPI = new FakeCacheAccessor();
+// }
+browserAPI = new ChromeCacheAccessor();
 
 export default browserAPI as CacheAccessor;
