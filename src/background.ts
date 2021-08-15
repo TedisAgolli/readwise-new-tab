@@ -143,19 +143,6 @@ chrome.alarms.get("cacheAlarm", (alarm) => {
   }
 });
 
-chrome.runtime.onInstalled.addListener((details) => {
-  const currentVersion = chrome.runtime.getManifest().version;
-  const previousVersion = details.previousVersion;
-  const reason = details.reason;
-  console.log(`Previous Version: ${previousVersion}`);
-  console.log(`Current Version: ${currentVersion}`);
-
-  if (reason === "update") {
-    console.log("Clearing cache because of update");
-    // localforage.clear();
-  }
-});
-
 chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
   if (request.type === "get_highlight") {
     const token = request.token;
