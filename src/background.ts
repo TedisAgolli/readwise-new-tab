@@ -203,6 +203,11 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
     fetch(
       `https://api.countapi.xyz/hit/readwise-new-tab-ext/import-book-${id}-${process.env.NODE_ENV}`
     );
+  } else if (request.type === "re-download") {
+    const { token } = request;
+    console.log("in here");
+    getAllReadwiseData(token, () => {});
   }
+
   return true;
 });

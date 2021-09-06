@@ -147,6 +147,13 @@ function App() {
 
   return (
     <div>
+      {/* <button
+        onClick={() => {
+          browserAPI.sendMessage({ type: "re-download", token }, () => {});
+        }}
+      >
+        Re-download
+      </button> */}
       {showTokenForm &&
         (tokenIsStored && !editingToken ? (
           <div className="m-3 flex space-x-2 items-center">

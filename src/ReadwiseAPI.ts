@@ -104,12 +104,19 @@ export class ReadwiseApi {
         statusBarText += ` (${results.length} / ${data.count})`;
 
       const response = await fetch(url, this.headers);
-      data = await response.json();
 
-      if (response.status === 429) {
+      if (response.status !== 503) {
+        data = await response.json();
+      }
+
+      if (response.status === 429 || response.status === 503) {
         // Error handling for rate limit throttling
-        const rateLimitedDelayTime =
+        let rateLimitedDelayTime: number;
+        rateLimitedDelayTime =
           parseInt(response.headers.get("Retry-After") || "") * 1000 + 1000;
+        if (response.status === 503) {
+          rateLimitedDelayTime = 5 * 60 * 1000;
+        }
         console.warn(
           `Readwise: API Rate Limited, waiting to retry for ${rateLimitedDelayTime}`
         );
