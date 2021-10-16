@@ -9,7 +9,7 @@ function ReadwiseHighlight(props: {
   const { quote, cover, id } = props.quoteAndCover;
   return (
     // Default state if src or quote empty
-    <div className="flex flex-col mt-28 mx-auto max-w-2xl mb-12">
+    <div className="flex flex-col mt-28 mx-6 max-w-2xl mb-12">
       {quote ? (
         <>
           <div className="mx-auto relative -mb-4 max-h-48 ">

@@ -1,5 +1,5 @@
 {
-    "name": "chrome-extension-react-typescript-boilerplate",
+    "name": "readwise-new-tab",
     "version": "1.0.0",
     "description": "",
     "scripts": {
@@ -45,6 +45,6 @@
         "react": "^16.14.0",
         "react-dom": "^16.14.0",
         "react-hot-loader": "^4.13.0",
-        "react-responsive-carousel": "^3.2.18"
+        "react-responsive-carousel": "^3.2.21"
     }
 }

@@ -2,11 +2,12 @@ import "./App.css";
 import React, { useState, useEffect } from "react";
 import ReadwiseHighlight from "./ReadwiseHighlight";
 import browserAPI from "./BrowserApi/CacheAccessor";
-import "react-responsive-carousel/lib/styles/carousel.min.css"; // requires a loader
 import { ChevronUpIcon } from "@heroicons/react/solid";
 import { Disclosure } from "@headlessui/react";
 import ImportBook from "./ImportBook";
 import localforage from "localforage";
+import "react-responsive-carousel/lib/styles/carousel.min.css"; // requires a loader
+import { Carousel } from "react-responsive-carousel";
 
 const editIcon = (
   <svg
@@ -74,23 +75,44 @@ const posts = [
 ];
 
 function App() {
-  const [quoteAndCover, setQuoteAndCover] = useState({
-    quote: "",
-    cover: "",
-    id: "",
-  });
+  const [quoteAndCover, setQuoteAndCover] = useState([
+    {
+      quote: "",
+      cover: "",
+      id: "",
+    },
+  ]);
   const [token, setToken] = useState("");
   const [showTokenForm, setShowTokenForm] = useState(false);
   const [tokenIsStored, setTokenIsStored] = useState(false);
   const [editingToken, setTokenIsEditing] = useState(false);
   const [isTokenWrong, setIsTokenWrong] = useState(false);
   const [showNewLabel, setShowNewLabel] = useState(true);
+
+  const RECENT_HIGHLIGHTS_KEY = "recent_highlights";
   function getHighlight(token: string) {
     browserAPI.sendMessage(
       { type: "get_highlight", token: token },
       (quoteAndCover) => {
         if (quoteAndCover) {
-          setQuoteAndCover(quoteAndCover);
+          localforage.getItem(
+            RECENT_HIGHLIGHTS_KEY,
+            (err, value: any[] | null) => {
+              if (value) {
+                if (value.length == 10) {
+                  value.shift();
+                  value = [];
+                }
+                value.push(quoteAndCover);
+                localforage.setItem(RECENT_HIGHLIGHTS_KEY, value);
+              } else {
+                value = [quoteAndCover];
+                localforage.setItem(RECENT_HIGHLIGHTS_KEY, value);
+              }
+              console.log(value);
+              setQuoteAndCover(value);
+            }
+          );
         }
       }
     );
@@ -267,12 +289,23 @@ function App() {
           }}
         </Disclosure>
       </div>
-      <ReadwiseHighlight
-        quoteAndCover={quoteAndCover}
-        getHighlight={() => {
-          getHighlight(token);
-        }}
-      />
+      <Carousel
+        className="mt-28 mx-auto max-w-2xl p-5"
+        selectedItem={quoteAndCover.length - 1}
+        infiniteLoop={true}
+        useKeyboardArrows={true}
+        showStatus={false}
+      >
+        {quoteAndCover.map((qnc) => (
+          <ReadwiseHighlight
+            quoteAndCover={qnc}
+            getHighlight={() => {
+              getHighlight(token);
+            }}
+          />
+        ))}
+      </Carousel>
+
       <div className="absolute bottom-3 right-3 text-white hidden lg:block">
         <span className="font-bold">Readwise New Tab</span>{" "}
         <span> brought to you by </span>
