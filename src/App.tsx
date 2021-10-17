@@ -130,12 +130,18 @@ function App() {
   }
 
   useEffect(() => {
-    getToken();
-    localforage.getItem("showNewLabel", (err, showNewLabel: boolean | null) => {
-      if (showNewLabel !== null) {
-        setShowNewLabel(showNewLabel);
-      }
-    });
+    async function wrap() {
+      getToken();
+      localforage.getItem(
+        "showNewLabel",
+        (err, showNewLabel: boolean | null) => {
+          if (showNewLabel !== null) {
+            setShowNewLabel(showNewLabel);
+          }
+        }
+      );
+    }
+    wrap();
   }, []);
 
   function storeToken(event: React.FormEvent<HTMLFormElement>) {
@@ -290,7 +296,7 @@ function App() {
         </Disclosure>
       </div>
       <Carousel
-        className="mt-28 mx-auto max-w-2xl p-5"
+        className=" mt-16 mx-auto max-w-3xl p-5"
         selectedItem={quoteAndCover.length - 1}
         infiniteLoop={true}
         useKeyboardArrows={true}
