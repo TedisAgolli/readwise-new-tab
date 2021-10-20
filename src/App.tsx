@@ -101,7 +101,6 @@ function App() {
               if (value) {
                 if (value.length == 10) {
                   value.shift();
-                  value = [];
                 }
                 value.push(quoteAndCover);
                 localforage.setItem(RECENT_HIGHLIGHTS_KEY, value);
