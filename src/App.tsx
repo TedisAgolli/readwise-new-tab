@@ -8,6 +8,7 @@ import ImportBook from "./ImportBook";
 import localforage from "localforage";
 import "react-responsive-carousel/lib/styles/carousel.min.css"; // requires a loader
 import { Carousel } from "react-responsive-carousel";
+import books from "./Books";
 
 const editIcon = (
   <svg
@@ -18,61 +19,13 @@ const editIcon = (
     stroke="currentColor"
   >
     <path
-      stroke-linecap="round"
-      stroke-linejoin="round"
-      stroke-width="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      strokeWidth="2"
       d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
     />
   </svg>
 );
-
-const posts = [
-  {
-    id: "1",
-    href: "http://paulgraham.com/quo.html",
-    description:
-      "Import Paul Graham's favorite quotes into your Readwise account",
-    author: {
-      name: "Paul Graham",
-      href: "http://paulgraham.com",
-      imageUrl:
-        "https://pbs.twimg.com/profile_images/1824002576/pg-railsconf_400x400.jpg",
-    },
-    source: "https://readwise-new-tab.s3.amazonaws.com/paul_graham_quotes.csv",
-  },
-  {
-    id: "2",
-    href: "https://www.brainyquote.com/authors/balaji-srinivasan-quotes",
-    description:
-      "Import Balaji Srinivasan's best quotes into your Readwise account",
-    author: {
-      name: "Balaji Srinivasan",
-      href: "https://balajis.com/",
-      imageUrl:
-        "https://www.gravatar.com/avatar/dafd097d6aef2117a3dad4bae3b067cf?s=250&d=mm&r=x",
-    },
-    source:
-      "https://readwise-new-tab.s3.amazonaws.com/balaji_srinivasan_quotes.csv",
-  },
-  //   {
-  //     href: "https://mailbrew.com/library/naval-ravikant/top-tweets",
-  //     description:
-  //       "Import Naval Ravikant's best tweets into your Readwise account",
-  //     author: {
-  //       name: "Naval Ravikant",
-  //       href: "http://nav.al",
-  //       imageUrl:
-  //         "https://pbs.twimg.com/profile_images/1256841238298292232/ycqwaMI2.jpg",
-  //     },
-  //     source:
-  //       "https://readwise-new-tab.s3.amazonaws.com/best_naval_ravikant_tweets.csv",
-  //     sourceAttribution: {
-  //       href: "https://mailbrew.com/",
-  //       image:
-  //         "https://pbs.twimg.com/profile_images/1418175281626497030/_FQnoBRe_400x400.jpg",
-  //     },
-  //   },
-];
 
 function App() {
   const [quoteAndCover, setQuoteAndCover] = useState([
@@ -88,6 +41,8 @@ function App() {
   const [editingToken, setTokenIsEditing] = useState(false);
   const [isTokenWrong, setIsTokenWrong] = useState(false);
   const [showNewLabel, setShowNewLabel] = useState(true);
+  const [isFirstCarouselLoad, setIsFirstCarouselLoad] = useState(true);
+  const [selectedCarouseldIdx, setSelectedCarouselIdx] = useState(0);
 
   const RECENT_HIGHLIGHTS_KEY = "recent_highlights";
   function getHighlight(token: string) {
@@ -108,8 +63,8 @@ function App() {
                 value = [quoteAndCover];
                 localforage.setItem(RECENT_HIGHLIGHTS_KEY, value);
               }
-              console.log(value);
               setQuoteAndCover(value);
+              setSelectedCarouselIdx(value.length - 1);
             }
           );
         }
@@ -142,6 +97,10 @@ function App() {
     }
     wrap();
   }, []);
+
+  useEffect(() => {
+    setSelectedCarouselIdx(quoteAndCover.length - 1);
+  }, [quoteAndCover]);
 
   function storeToken(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -285,8 +244,8 @@ function App() {
                   />
                 </Disclosure.Button>
                 <Disclosure.Panel className="px-4 pt-4 pb-2 text-sm text-gray-500">
-                  {posts.map((post) => (
-                    <ImportBook key={post.id} post={post} token={token} />
+                  {books.map((book) => (
+                    <ImportBook key={book.id} post={book} token={token} />
                   ))}
                 </Disclosure.Panel>
               </>
@@ -296,13 +255,22 @@ function App() {
       </div>
       <Carousel
         className=" mt-16 mx-auto max-w-3xl p-5"
-        selectedItem={quoteAndCover.length - 1}
+        selectedItem={selectedCarouseldIdx}
+        transitionTime={isFirstCarouselLoad ? 0 : 350}
         infiniteLoop={true}
         useKeyboardArrows={true}
         showStatus={false}
+        showThumbs={false}
+        onChange={(idx, item) => {
+          setSelectedCarouselIdx(idx);
+          if (idx !== quoteAndCover.length - 1) {
+            setIsFirstCarouselLoad(false);
+          }
+        }}
       >
         {quoteAndCover.map((qnc) => (
           <ReadwiseHighlight
+            key={qnc.id}
             quoteAndCover={qnc}
             getHighlight={() => {
               getHighlight(token);
