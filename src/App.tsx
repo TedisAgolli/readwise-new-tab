@@ -9,6 +9,7 @@ import localforage from "localforage";
 import "react-responsive-carousel/lib/styles/carousel.min.css"; // requires a loader
 import { Carousel } from "react-responsive-carousel";
 import books from "./Books";
+import DarkModeToggle from "react-dark-mode-toggle";
 
 const editIcon = (
   <svg
@@ -27,6 +28,10 @@ const editIcon = (
   </svg>
 );
 
+enum Theme {
+  light = "light",
+  dark = "dark",
+}
 function App() {
   const [quoteAndCover, setQuoteAndCover] = useState([
     {
@@ -43,6 +48,7 @@ function App() {
   const [showNewLabel, setShowNewLabel] = useState(true);
   const [isFirstCarouselLoad, setIsFirstCarouselLoad] = useState(true);
   const [selectedCarouseldIdx, setSelectedCarouselIdx] = useState(0);
+  const [theme, setTheme] = useState(Theme.light);
 
   const RECENT_HIGHLIGHTS_KEY = "recent_highlights";
   function getHighlight(token: string) {
@@ -83,6 +89,22 @@ function App() {
     });
   }
 
+  function changeTheme(theme: Theme) {
+    localStorage.theme = theme;
+    if (
+      localStorage.theme === "dark" ||
+      (!("theme" in localStorage) &&
+        window.matchMedia("(prefers-color-scheme: dark)").matches)
+    ) {
+      document.documentElement.classList.add("dark");
+      document.documentElement.classList.add("bg-gray-800");
+      setTheme(Theme.dark);
+    } else {
+      document.documentElement.classList.remove("dark");
+      document.documentElement.classList.remove("bg-gray-800");
+      setTheme(Theme.light);
+    }
+  }
   useEffect(() => {
     async function wrap() {
       getToken();
@@ -96,6 +118,22 @@ function App() {
       );
     }
     wrap();
+
+    // On page load or when changing themes, best to add inline in `head` to avoid FOUC
+    // TODO: Refactor all this
+    if (
+      localStorage.theme === "dark" ||
+      (!("theme" in localStorage) &&
+        window.matchMedia("(prefers-color-scheme: dark)").matches)
+    ) {
+      document.documentElement.classList.add("dark");
+      document.documentElement.classList.add("bg-gray-800");
+      setTheme(Theme.dark);
+    } else {
+      document.documentElement.classList.remove("dark");
+      document.documentElement.classList.remove("bg-gray-800");
+      setTheme(Theme.light);
+    }
   }, []);
 
   useEffect(() => {
@@ -133,13 +171,20 @@ function App() {
 
   return (
     <div>
-      {/* <button
-        onClick={() => {
-          browserAPI.sendMessage({ type: "re-download", token }, () => {});
+      <DarkModeToggle
+        className="absolute top-1 right-2"
+        onChange={() => {
+          if (localStorage.theme === Theme.dark) {
+            changeTheme(Theme.light);
+          } else if (localStorage.theme === Theme.light) {
+            changeTheme(Theme.dark);
+          }
         }}
-      >
-        Re-download
-      </button> */}
+        checked={theme === Theme.dark}
+        size={50}
+        speed={2}
+      />
+
       {showTokenForm &&
         (tokenIsStored && !editingToken ? (
           <div className="m-3 flex space-x-2 items-center">

@@ -3,8 +3,9 @@
 @tailwind utilities;
 
 html {
-  @apply bg-indigo-600;
+  @apply bg-indigo-600 dark:bg-gray-800;
 }
+
 .App {
   text-align: center;
 }

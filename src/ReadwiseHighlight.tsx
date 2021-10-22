@@ -27,7 +27,7 @@ function ReadwiseHighlight(props: {
           >
             Go to highlight
           </a>
-          <div className="flex flex-col bg-opacity-30 rounded-lg shadow-xl border-black bg-gradient-to-r from-red-400 to-pink-500">
+          <div className="flex flex-col bg-opacity-30 rounded-lg shadow-xl border-black bg-gradient-to-r from-red-400 to-pink-500 dark:from-gray-500 dark:to-gray-500">
             <div
               className="m-3 p-2 italic text-xl text-white font-semibold"
               dangerouslySetInnerHTML={{
