@@ -119,6 +119,7 @@ function getRandomHighlight(booksAndHighlights: BooksAndHighlights) {
       quote: highlight.text,
       id: highlight.id,
       cover: selectedBook.cover_image_url,
+      bookTitle: selectedBook.title,
     };
   }
   return selectedQuote;

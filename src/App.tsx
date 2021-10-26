@@ -38,6 +38,7 @@ function App() {
       quote: "",
       cover: "",
       id: "",
+      bookTitle: "",
     },
   ]);
   const [token, setToken] = useState("");

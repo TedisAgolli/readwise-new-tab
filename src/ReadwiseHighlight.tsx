@@ -3,10 +3,15 @@ import MarkdownIt from "markdown-it";
 const md = new MarkdownIt();
 
 function ReadwiseHighlight(props: {
-  quoteAndCover: { quote: string; cover: string; id: string };
+  quoteAndCover: {
+    quote: string;
+    cover: string;
+    id: string;
+    bookTitle: string;
+  };
   getHighlight: () => void;
 }) {
-  const { quote, cover, id } = props.quoteAndCover;
+  const { quote, cover, id, bookTitle } = props.quoteAndCover;
   return (
     // Default state if src or quote empty
     <div className="flex flex-col mt-8 mx-6 max-w-3xl mb-12">
@@ -17,6 +22,7 @@ function ReadwiseHighlight(props: {
               alt="Book Cover"
               src={cover}
               className="-mb-1 max-h-48 max-w-48"
+              title={bookTitle}
             />
           </div>
           <a

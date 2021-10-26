@@ -6,6 +6,10 @@ html {
   @apply bg-indigo-600 dark:bg-gray-800;
 }
 
+.carousel img {
+  pointer-events: all !important;
+}
+
 .App {
   text-align: center;
 }
