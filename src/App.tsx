@@ -99,10 +99,12 @@ function App() {
     ) {
       document.documentElement.classList.add("dark");
       document.documentElement.classList.add("bg-gray-800");
+      localStorage.theme = Theme.dark;
       setTheme(Theme.dark);
     } else {
       document.documentElement.classList.remove("dark");
       document.documentElement.classList.remove("bg-gray-800");
+      localStorage.theme = Theme.light;
       setTheme(Theme.light);
     }
   }
@@ -129,10 +131,12 @@ function App() {
     ) {
       document.documentElement.classList.add("dark");
       document.documentElement.classList.add("bg-gray-800");
+      localStorage.theme = Theme.dark;
       setTheme(Theme.dark);
     } else {
       document.documentElement.classList.remove("dark");
       document.documentElement.classList.remove("bg-gray-800");
+      localStorage.theme = Theme.light;
       setTheme(Theme.light);
     }
   }, []);
@@ -159,7 +163,8 @@ function App() {
             { type: "get_highlight", token },
             (quoteAndCover) => {
               if (quoteAndCover) {
-                setQuoteAndCover(quoteAndCover);
+                setQuoteAndCover([quoteAndCover]);
+                localforage.setItem(RECENT_HIGHLIGHTS_KEY, [quoteAndCover]);
               }
             }
           );
@@ -177,7 +182,7 @@ function App() {
         onChange={() => {
           if (localStorage.theme === Theme.dark) {
             changeTheme(Theme.light);
-          } else if (localStorage.theme === Theme.light) {
+          } else {
             changeTheme(Theme.dark);
           }
         }}
@@ -314,15 +319,16 @@ function App() {
           }
         }}
       >
-        {quoteAndCover.map((qnc) => (
-          <ReadwiseHighlight
-            key={qnc.id}
-            quoteAndCover={qnc}
-            getHighlight={() => {
-              getHighlight(token);
-            }}
-          />
-        ))}
+        {quoteAndCover &&
+          quoteAndCover.map((qnc) => (
+            <ReadwiseHighlight
+              key={qnc.id}
+              quoteAndCover={qnc}
+              getHighlight={() => {
+                getHighlight(token);
+              }}
+            />
+          ))}
       </Carousel>
 
       <div className="absolute bottom-3 right-3 text-white hidden lg:block">
