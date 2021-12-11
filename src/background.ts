@@ -15,7 +15,7 @@ interface CustomHighlight {
   URL: string;
 }
 
-chrome.browserAction.onClicked.addListener(function (tab) {
+chrome.action.onClicked.addListener(function () {
   chrome.tabs.update({ url: "https://readwise.io/access_token" });
 });
 
